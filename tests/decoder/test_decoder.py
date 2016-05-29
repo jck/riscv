@@ -21,7 +21,7 @@ test_instruction['bgeu'] = '1' + '000000' + '00001' + '00010' + '111' + '0000' +
 class TestDecoder(unittest.TestCase):
 	
 	def test_branch_instructions(self):
-		instructions = ['beq', 'bne', 'blt', 'bge', 'bltu']
+		instructions = ['beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu']
 		
 		for instr in instructions:
 			ground_truth = defaultdict()
@@ -31,10 +31,10 @@ class TestDecoder(unittest.TestCase):
 			ground_truth['imm12hi'] = '110000'
 			ground_truth['imm12lo'] = '000000'
 			
-			result = decoder.decode(test_instruction[instr])
+			result = decoder.decode(test_instruction[instr], debug=True)
 			for key in ground_truth:
 				self.assertEqual(result[key],ground_truth[key])
-				print(key + ' key verfication failed for instruction : ' + instr)
+				# print(key + ' key verfication failed for instruction : ' + instr)
 
 if __name__ == '__main__':
 	unittest.main()
