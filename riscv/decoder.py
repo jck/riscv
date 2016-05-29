@@ -1,31 +1,6 @@
-import binascii
 import json
+import binascii
 from collections import defaultdict
-
-rd      = 0 
-rs1     = 0
-rs2     = 0 
-rs3     = 0
-imm20   = 0
-imm12   = 0
-imm12lo = 0 
-imm12hi = 0
-shamtw  = 0
-shamt   = 0
-rm      = 0
-
-a = 'opcode'
-b = 'rd'
-c = 'funct3'
-d = 'rs1'
-e = 'rs2'
-f = 'imm'
-g = 'funct7'
-
-r_instruction = 'gggggggeeeeedddddcccbbbbbaaaaaaa'
-i_instruction = 'ffffffffffffdddddcccbbbbbaaaaaaa'
-s_instruction = 'fffffffeeeeedddddcccfffffaaaaaaa'
-u_instruction = 'ffffffffffffffffffffbbbbbaaaaaaa'
 
 def get_hex(binary_str):
 	"""
@@ -47,6 +22,20 @@ def get_int(binary_str):
 	return str(int(binary_str, base=2))
 
 def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None, shamt=None):
+	"""	
+	Wraps the non-empty arguments and the instruction name into a dictionary with
+	arguments as keys and vals as values
+
+	:param str instr: Name of the instruction
+	:param str rs1: Source register 1
+	:param str rs2: Source register 2
+	:param str rd: Destination register
+	:param str imm12lo: Lower 6 bits of Immediate 12
+	:param str imm12hi: Higher 6 bits of Immediate 12
+	:param str imm12: Immediate 12
+	:param str imm20: Immediate 20
+	:param str shamt: Shift args
+	"""
 	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12, shamt]
 	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12', 'shamt']
 
@@ -102,10 +91,25 @@ instruction_table['0x0c']['6']['0'] = 'or'
 instruction_table['0x0c']['7']['0'] = 'and'
 
 def print_dic(dictionary):
+	"""
+	Utility function to print the output dictionary for 
+	debug purposes
+
+	:param dictionary dictionary: Dictionary object of the decoded instruction
+	"""
 	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
 	print json_dict
 
 def decode(instruction, debug = False):
+	"""	
+	Decodes the binary instruction string input and returns a 
+	dictionary with the instruction name and arguments as keys and 
+	their vals as values 
+
+	:param str instruction: Binary string that contains the encoded instruction
+	:param str debug: Flag to print decoded dictionary (if true).
+	"""
+
 	family = instruction[-7:-2]
 
 	if get_hex(family) == '0x18':
@@ -168,8 +172,8 @@ def decode(instruction, debug = False):
 	elif get_hex(family) == '0x0c':
 		funct3 = get_int(instruction[-15:-12])
 		
-		slice_5 = get_int(instruction[:7])
-		instruction_name = instruction_table[get_hex(family)][funct3][slice_5]
+		slice_7 = get_int(instruction[:7])
+		instruction_name = instruction_table[get_hex(family)][funct3][slice_7]
 		
 		rd = instruction[-12:-7]
 		rs1 = instruction[-20:-15]
@@ -323,11 +327,3 @@ instruction_table['0x10']['1'] = 'fmadd.d'
 instruction_table['0x11']['1'] = 'fmsub.d'
 instruction_table['0x12']['1'] = 'fnmsub.d'
 instruction_table['0x13']['1'] = 'fnmadd.d'
-
-# print(r_instruction[-7:-2])
-# print(instruction_table)
-
-
-
-# if instruction[-7:-2] == '11000':
-# 	if instruction[-14:-12] == ''

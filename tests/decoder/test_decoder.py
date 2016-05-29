@@ -46,7 +46,7 @@ test_instruction['and'] = '0000000' + '00010' + '00001' + '111' + '00011' + '011
 
 class TestDecoder(unittest.TestCase):
 
-	def test_arithmetic_r_instructions(self):
+	def test_arithmetic_reg_instructions(self):
 		instructions = ['add', 'sub', 'sll', 'slt', 'sltu', 'xor', 'srl', 'sra', 'or', 'and']
 		
 		for instr in instructions:
