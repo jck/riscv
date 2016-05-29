@@ -90,6 +90,17 @@ instruction_table['0x04']['5']['16'] = 'srai'
 instruction_table['0x04']['6'] = 'ori'
 instruction_table['0x04']['7'] = 'andi'
 
+instruction_table['0x0c']['0']['0'] = 'add'
+instruction_table['0x0c']['0']['32'] = 'sub'
+instruction_table['0x0c']['1']['0'] = 'sll'
+instruction_table['0x0c']['2']['0'] = 'slt'
+instruction_table['0x0c']['3']['0'] = 'sltu'
+instruction_table['0x0c']['4']['0'] = 'xor'
+instruction_table['0x0c']['5']['0'] = 'srl'
+instruction_table['0x0c']['5']['32'] = 'sra'
+instruction_table['0x0c']['6']['0'] = 'or'
+instruction_table['0x0c']['7']['0'] = 'and'
+
 def print_dic(dictionary):
 	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
 	print json_dict
@@ -154,20 +165,20 @@ def decode(instruction, debug = False):
 			shamt = instruction[-25:-20]
 			return get_output(instr=instruction_name ,rs1=rs1, rd=rd, shamt=shamt, debug=debug)
 
+	elif get_hex(family) == '0x0c':
+		funct3 = get_int(instruction[-15:-12])
+		
+		slice_5 = get_int(instruction[:7])
+		instruction_name = instruction_table[get_hex(family)][funct3][slice_5]
+		
+		rd = instruction[-12:-7]
+		rs1 = instruction[-20:-15]
+		rs2 = instruction[-25:-20]
+		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rd=rd, debug=debug)
+
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
-
-instruction_table['0x0C']['0']['0'] = 'add'
-instruction_table['0x0C']['0']['32'] = 'sub'
-instruction_table['0x0C']['1']['0'] = 'sll'
-instruction_table['0x0C']['2']['0'] = 'slt'
-instruction_table['0x0C']['3']['0'] = 'sltu'
-instruction_table['0x0C']['4']['0'] = 'xor'
-instruction_table['0x0C']['5']['0'] = 'srl'
-instruction_table['0x0C']['5']['32'] = 'sra'
-instruction_table['0x0C']['6']['0'] = 'or'
-instruction_table['0x0C']['7']['0'] = 'and'
 
 instruction_table['0x06']['0'] = 'addiw'
 instruction_table['0x06']['0'] = 'slliw'
@@ -191,14 +202,14 @@ instruction_table['0x03']['0'] = 'fence'
 instruction_table['0x03']['1'] = 'fence.i'
 
 #RV32M
-instruction_table['0x0C']['0']['1'] = 'mul'
-instruction_table['0x0C']['1']['1'] = 'mulh'
-instruction_table['0x0C']['2']['1'] = 'mulhsu'
-instruction_table['0x0C']['3']['1'] = 'mulhu'
-instruction_table['0x0C']['4']['1'] = 'div'
-instruction_table['0x0C']['5']['1'] = 'divu'
-instruction_table['0x0C']['6']['1'] = 'rem'
-instruction_table['0x0C']['7']['1'] = 'remu'
+instruction_table['0x0c']['0']['1'] = 'mul'
+instruction_table['0x0c']['1']['1'] = 'mulh'
+instruction_table['0x0c']['2']['1'] = 'mulhsu'
+instruction_table['0x0c']['3']['1'] = 'mulhu'
+instruction_table['0x0c']['4']['1'] = 'div'
+instruction_table['0x0c']['5']['1'] = 'divu'
+instruction_table['0x0c']['6']['1'] = 'rem'
+instruction_table['0x0c']['7']['1'] = 'remu'
 
 # RV64M
 instruction_table['0x0E']['0']['1'] = 'mulw'

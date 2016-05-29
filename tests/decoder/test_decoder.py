@@ -33,9 +33,35 @@ test_instruction['srai'] = '0010000' + '00001' + '00001' + '101' + '00001' + '00
 test_instruction['ori'] = '000000000001' + '00001' + '110' + '00001' + '00100' + '11'
 test_instruction['andi'] = '000000000001' + '00001' + '111' + '00001' + '00100' + '11'
 
+test_instruction['add'] = '0000000' + '00010' + '00001' + '000' + '00011' + '01100' + '11' 
+test_instruction['sub'] = '0100000' + '00010' + '00001' + '000' + '00011' + '01100' + '11' 
+test_instruction['sll'] = '0000000' + '00010' + '00001' + '001' + '00011' + '01100' + '11' 
+test_instruction['slt'] = '0000000' + '00010' + '00001' + '010' + '00011' + '01100' + '11' 
+test_instruction['sltu'] = '0000000' + '00010' + '00001' + '011' + '00011' + '01100' + '11' 
+test_instruction['xor'] = '0000000' + '00010' + '00001' + '100' + '00011' + '01100' + '11' 
+test_instruction['srl'] = '0000000' + '00010' + '00001' + '101' + '00011' + '01100' + '11' 
+test_instruction['sra'] = '0100000' + '00010' + '00001' + '101' + '00011' + '01100' + '11' 
+test_instruction['or'] = '0000000' + '00010' + '00001' + '110' + '00011' + '01100' + '11' 
+test_instruction['and'] = '0000000' + '00010' + '00001' + '111' + '00011' + '01100' + '11' 
+
 class TestDecoder(unittest.TestCase):
 
-	def test_arithmetic_instructions(self):
+	def test_arithmetic_r_instructions(self):
+		instructions = ['add', 'sub', 'sll', 'slt', 'sltu', 'xor', 'srl', 'sra', 'or', 'and']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rs2'] = '00010'
+			ground_truth['rd'] = '00011'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
+
+	def test_arithmetic_imm_instructions(self):
 		instructions = ['addi', 'slli', 'slti', 'sltiu', 'xori', 'srli', 'srai', 'ori', 'andi']
 		
 		for instr in instructions:
