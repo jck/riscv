@@ -23,7 +23,36 @@ test_instruction['jalr'] = '000000000001' + '00001' + '000' + '00001' + '11001' 
 test_instruction['lui'] = '00000000000000000001' + '00001' + '01101' + '11'
 test_instruction['auipc'] = '00000000000000000001' + '00001' + '00101' + '11'
 
+test_instruction['addi'] = '000000000001' + '00001' + '000' + '00001' + '00100' + '11' 
+test_instruction['slli'] = '0000000' + '00001' + '00001' + '001' + '00001' + '00100' + '11'
+test_instruction['slti'] = '000000000001' + '00001' + '010' + '00001' + '00100' + '11'
+test_instruction['sltiu'] = '000000000001' + '00001' + '011' + '00001' + '00100' + '11'
+test_instruction['xori'] = '000000000001' + '00001' + '100' + '00001' + '00100' + '11'
+test_instruction['srli'] = '0000000' + '00001' + '00001' + '101' + '00001' + '00100' + '11'
+test_instruction['srai'] = '0010000' + '00001' + '00001' + '101' + '00001' + '00100' + '11'
+test_instruction['ori'] = '000000000001' + '00001' + '110' + '00001' + '00100' + '11'
+test_instruction['andi'] = '000000000001' + '00001' + '111' + '00001' + '00100' + '11'
+
 class TestDecoder(unittest.TestCase):
+
+	def test_arithmetic_instructions(self):
+		instructions = ['addi', 'slli', 'slti', 'sltiu', 'xori', 'srli', 'srai', 'ori', 'andi']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rd'] = '00001'
+			ground_truth['rs1'] = '00001'
+
+			if instr in ['slli', 'srli', 'srai']:
+				ground_truth['shamt'] = '00001'
+			else:
+				ground_truth['imm12'] = '000000000001'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_upper_immediate_instructions(self):
 		instructions = ['lui', 'auipc']

@@ -46,9 +46,9 @@ def get_int(binary_str):
 	"""
 	return str(int(binary_str, base=2))
 
-def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None):
-	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12]
-	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12']
+def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None, shamt=None):
+	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12, shamt]
+	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12', 'shamt']
 
 	output_dict = defaultdict()
 	output_dict['instr'] = instr
@@ -65,11 +65,7 @@ def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12h
 instruction_list = lambda:defaultdict(instruction_list)
 instruction_table = instruction_list()
 
-# print(get_hex(family))
-# print(int(funct3, base=10))
-
 # RV32I
-
 ## Branch
 instruction_table['0x18']['0'] = 'beq'
 instruction_table['0x18']['1'] = 'bne'
@@ -83,6 +79,16 @@ instruction_table['0x1b'] = 'jal'
 ## Upper Immediate
 instruction_table['0x0d'] = 'lui'
 instruction_table['0x05'] = 'auipc'
+## Arithmetic & Computation
+instruction_table['0x04']['0'] = 'addi'
+instruction_table['0x04']['1'] = 'slli'
+instruction_table['0x04']['2'] = 'slti'
+instruction_table['0x04']['3'] = 'sltiu'
+instruction_table['0x04']['4'] = 'xori'
+instruction_table['0x04']['5']['0'] = 'srli'
+instruction_table['0x04']['5']['16'] = 'srai'
+instruction_table['0x04']['6'] = 'ori'
+instruction_table['0x04']['7'] = 'andi'
 
 def print_dic(dictionary):
 	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
@@ -127,19 +133,30 @@ def decode(instruction, debug = False):
 
 		return get_output(instr=instruction_name ,rd=rd, imm20=imm20, debug = debug)
 
+	elif get_hex(family) == '0x04':
+		funct3 = get_int(instruction[-15:-12])
+
+		if funct3 in ['0','2','3','4','6','7']:
+			instruction_name = instruction_table[get_hex(family)][funct3]
+			rd = instruction[-12:-7]
+			rs1 = instruction[-20:-15]
+			imm12 = instruction[:12]
+			return get_output(instr=instruction_name ,rs1=rs1, rd=rd, imm12=imm12, debug=debug)
+
+		elif funct3 in ['1','5']:
+			if funct3 == '5':
+				slice_5 = str(get_int(instruction[:7]))
+				instruction_name = instruction_table[get_hex(family)][funct3][slice_5]
+			else :
+				instruction_name = instruction_table[get_hex(family)][funct3]	
+			rd = instruction[-12:-7]
+			rs1 = instruction[-20:-15]
+			shamt = instruction[-25:-20]
+			return get_output(instr=instruction_name ,rs1=rs1, rd=rd, shamt=shamt, debug=debug)
+
 	else:
 		print("Instruction does not match any known instruction")
-
-## Arithmetic & Computation
-instruction_table['0x04']['0'] = 'addi'
-instruction_table['0x04']['1'] = 'slli'
-instruction_table['0x04']['2'] = 'slti'
-instruction_table['0x04']['3'] = 'sltiu'
-instruction_table['0x04']['4'] = 'xori'
-instruction_table['0x04']['5']['0'] = 'srli'
-instruction_table['0x04']['5']['16'] = 'srai'
-instruction_table['0x04']['6'] = 'ori'
-instruction_table['0x04']['7'] = 'andi'
+		print("Family :" + family)
 
 instruction_table['0x0C']['0']['0'] = 'add'
 instruction_table['0x0C']['0']['32'] = 'sub'
