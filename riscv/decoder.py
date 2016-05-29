@@ -45,26 +45,24 @@ def get_int(binary_str):
 	"""
 	return str(int(binary_str, base=2))
 
-def get_output(instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None):
+def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None):
+	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20]
+	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20']
+
 	output_dict = defaultdict()
 	output_dict['instr'] = instr
 
-	if rs1 != None:
-		output_dict['rs1'] = rs1
-	if rs2 != None:
-		output_dict['rs2'] = rs2
-	if imm12lo != None:
-		output_dict['imm12lo'] = imm12lo
-	if imm12hi != None:
-		output_dict['imm12hi'] = imm12hi
+	for i in range(len(arg_list)):
+		if arg_list[i] != None:
+			output_dict[arg_keys[i]] = arg_list[i]
+
+	if debug == True:
+		print_dic(output_dict)
 
 	return output_dict
 
 instruction_list = lambda:defaultdict(instruction_list)
 instruction_table = instruction_list()
-
-
-testinstruction = '1' + '000000' + '00001' + '00010' + '000' + '0000' + '1' + '11000' + '11'
 
 # print(get_hex(family))
 # print(int(funct3, base=10))
@@ -78,6 +76,9 @@ instruction_table['0x18']['4'] = 'blt'
 instruction_table['0x18']['5'] = 'bge'
 instruction_table['0x18']['6'] = 'bltu'
 instruction_table['0x18']['7'] = 'bgeu'
+## Jump
+instruction_table['0x19'] = 'jalr'
+instruction_table['0x1b'] = 'jal'
 
 def print_dic(dictionary):
 	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
@@ -88,22 +89,23 @@ def decode(instruction, debug = False):
 
 	if get_hex(family) == '0x18':
 		funct3 = get_int(instruction[-15:-12])
-		instruction_name = instruction_table['0x18'][funct3]
+		instruction_name = instruction_table[get_hex(family)][funct3]
 		
 		rs1 = instruction[-25:-20]
 		rs2 = instruction[-20:-15]
 		imm12hi = instruction[0] + instruction[-8] + instruction[-31:-27]
 		imm12lo = instruction[-27:-25] + instruction[-12:-8]
 		
-		retrurn_val = get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, imm12lo=imm12lo, imm12hi=imm12hi) 
-		if debug == True :
-			print_dic(retrurn_val)
-		return retrurn_val	
+		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, imm12lo=imm12lo, imm12hi=imm12hi, debug=debug) 
+	
+	if get_hex(family) == '0x1b':
+		instruction_name = instruction_table[get_hex(family)]
+		
+		rd = instruction[-12:-7]
+		imm20 = instruction[0] + instruction[-20:-12] + instruction[-21] + instruction[-31:-21]
 
-## Jump
-instruction_table['0x19'] = 'jalr'
-instruction_table['0x1b'] = 'jal'
-
+		return get_output(instr=instruction_name ,rd=rd, imm20=imm20, debug = debug)
+	
 instruction_table['0x0D'] = 'lui'
 instruction_table['0x05'] = 'auipc'
 
