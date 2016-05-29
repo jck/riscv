@@ -26,9 +26,40 @@ i_instruction = 'ffffffffffffdddddcccbbbbbaaaaaaa'
 s_instruction = 'fffffffeeeeedddddcccfffffaaaaaaa'
 u_instruction = 'ffffffffffffffffffffbbbbbaaaaaaa'
 
+def get_hex(binary_str):
+	"""
+	Returns the hexadecimal string literal for the given binary string 
+	literal input
+
+	:param str binary_str: Binary string to be converted to hex
+	"""
+	return hex(int(binary_str, base=2))
+
+def get_int(binary_str):
+	"""
+	Returns the integer string literal for the given binary string 
+	literal input
+
+	:param str binary_str: Binary string to be converted to int
+	"""
+	return str(int(binary_str, base=2))
 
 instruction_list = lambda:defaultdict(instruction_list)
 instruction_table = instruction_list()
+
+test_instruction = defaultdict()
+test_instruction['beq']  = '1' + '000000' + '00001' + '00010' + '000' + '0000' + '1' + '11000' + '11'
+test_instruction['bne']  = '1' + '000000' + '00001' + '00010' + '001' + '0000' + '1' + '11000' + '11'
+test_instruction['blt']  = '1' + '000000' + '00001' + '00010' + '100' + '0000' + '1' + '11000' + '11'
+test_instruction['bge']  = '1' + '000000' + '00001' + '00010' + '101' + '0000' + '1' + '11000' + '11'
+test_instruction['bltu'] = '1' + '000000' + '00001' + '00010' + '110' + '0000' + '1' + '11000' + '11'
+test_instruction['bgeu'] = '1' + '000000' + '00001' + '00010' + '111' + '0000' + '1' + '11000' + '11'
+
+instruction = '1' + '000000' + '00001' + '00010' + '000' + '0000' + '1' + '11000' + '11'
+
+# print(get_hex(family))
+# print(int(funct3, base=10))
+
 
 # RV32I
 
@@ -39,6 +70,20 @@ instruction_table['0x18']['4'] = 'blt'
 instruction_table['0x18']['5'] = 'bge'
 instruction_table['0x18']['6'] = 'bltu'
 instruction_table['0x18']['7'] = 'bgeu'
+
+for key in test_instruction:
+	
+	family = test_instruction[key][-7:-2]
+	
+	if get_hex(family) == '0x18':
+		funct3 = get_int(test_instruction[key][-15:-12])
+		rs1 = test_instruction[key][-25:-20]
+		rs2 = test_instruction[key][-20:-15]
+		imm12hi = test_instruction[key][0] + test_instruction[key][-8] + test_instruction[key][-31:]
+		imm12lo = test_instruction[key][-15:-12]
+		print(instruction_table['0x18'][funct3])
+		print(rs1)
+		print(rs2)
 
 ## Jump
 instruction_table['0x19'] = 'jalr'
@@ -213,5 +258,10 @@ instruction_table['0x11']['1'] = 'fmsub.d'
 instruction_table['0x12']['1'] = 'fnmsub.d'
 instruction_table['0x13']['1'] = 'fnmadd.d'
 
-print(r_instruction[-7:-2])
-print(instruction_table)
+# print(r_instruction[-7:-2])
+# print(instruction_table)
+
+
+
+# if instruction[-7:-2] == '11000':
+# 	if instruction[-14:-12] == ''	
