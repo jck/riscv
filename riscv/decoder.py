@@ -34,7 +34,8 @@ def get_hex(binary_str):
 
 	:param str binary_str: Binary string to be converted to hex
 	"""
-	return hex(int(binary_str, base=2))
+
+	return "{0:#0{1}x}".format(int(binary_str, base=2),4)
 
 def get_int(binary_str):
 	"""
@@ -45,9 +46,9 @@ def get_int(binary_str):
 	"""
 	return str(int(binary_str, base=2))
 
-def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None):
-	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20]
-	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20']
+def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None):
+	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12]
+	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12']
 
 	output_dict = defaultdict()
 	output_dict['instr'] = instr
@@ -79,6 +80,9 @@ instruction_table['0x18']['7'] = 'bgeu'
 ## Jump
 instruction_table['0x19'] = 'jalr'
 instruction_table['0x1b'] = 'jal'
+## Upper Immediate
+instruction_table['0x0d'] = 'lui'
+instruction_table['0x05'] = 'auipc'
 
 def print_dic(dictionary):
 	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
@@ -98,16 +102,33 @@ def decode(instruction, debug = False):
 		
 		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, imm12lo=imm12lo, imm12hi=imm12hi, debug=debug) 
 	
-	if get_hex(family) == '0x1b':
+	elif get_hex(family) == '0x1b':
 		instruction_name = instruction_table[get_hex(family)]
 		
 		rd = instruction[-12:-7]
 		imm20 = instruction[0] + instruction[-20:-12] + instruction[-21] + instruction[-31:-21]
 
 		return get_output(instr=instruction_name ,rd=rd, imm20=imm20, debug = debug)
+
+	elif get_hex(family) == '0x19':
+		instruction_name = instruction_table[get_hex(family)]
+		
+		rs1 = instruction[-20:-15]
+		rd = instruction[-12:-7]
+		imm12 = instruction[:12]
+
+		return get_output(instr=instruction_name ,rd=rd, imm12=imm12, rs1=rs1,debug = debug)
 	
-instruction_table['0x0D'] = 'lui'
-instruction_table['0x05'] = 'auipc'
+	elif get_hex(family) == '0x0d' or get_hex(family) == '0x05':
+		instruction_name = instruction_table[get_hex(family)]
+		
+		imm20 = instruction[:20]
+		rd = instruction[-12:-7]
+
+		return get_output(instr=instruction_name ,rd=rd, imm20=imm20, debug = debug)
+
+	else:
+		print("Instruction does not match any known instruction")
 
 ## Arithmetic & Computation
 instruction_table['0x04']['0'] = 'addi'
@@ -281,4 +302,4 @@ instruction_table['0x13']['1'] = 'fnmadd.d'
 
 
 # if instruction[-7:-2] == '11000':
-# 	if instruction[-14:-12] == ''	
+# 	if instruction[-14:-12] == ''
