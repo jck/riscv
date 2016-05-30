@@ -125,6 +125,9 @@ instruction_table['0x08']['1'] = 'sh'
 instruction_table['0x08']['2'] = 'sw'
 instruction_table['0x08']['3'] = 'sd'
 
+instruction_table['0x03']['0'] = 'fence'
+instruction_table['0x03']['1'] = 'fence.i'
+
 def decode(instruction, debug = False):
 	"""	
 	Decodes the binary instruction string input and returns a 
@@ -256,14 +259,22 @@ def decode(instruction, debug = False):
 		imm12hi = instruction[:6]
 		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, imm12lo=imm12lo, imm12hi=imm12hi, debug=debug)
 
+	elif get_hex(family) == '0x03':
+		funct3 = get_int(instruction[-15:-12])
+		instruction_name = instruction_table[get_hex(family)][funct3]
+		rs1 = instruction[-20:-15]
+		rd = instruction[-12:-7]
+		
+		if funct3 == '0':
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)
+		
+		else:
+			imm12 = instruction[:12]
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, imm12=imm12, debug=debug)
+			
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
-
-
-
-instruction_table['0x03']['0'] = 'fence'
-instruction_table['0x03']['1'] = 'fence.i'
 
 #RV32M
 instruction_table['0x0c']['0']['1'] = 'mul'

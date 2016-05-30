@@ -68,7 +68,24 @@ test_instruction['sh'] = '0000010' + '00001' + '00010' + '001' + '00001' + '0100
 test_instruction['sw'] = '0000010' + '00001' + '00010' + '010' + '00001' + '01000' + '11' 
 test_instruction['sd'] = '0000010' + '00001' + '00010' + '011' + '00001' + '01000' + '11' 
 
+test_instruction['fence'] = '0000' + '11111111' + '00001' + '000' + '00010' + '00011' + '11' 
+test_instruction['fence.i'] = '000000000001' + '00001' + '001' + '00010' + '00011' + '11' 
+
 class TestDecoder(unittest.TestCase):
+
+	def test_fence_instructions(self):
+		instructions = ['fence', 'fence.i']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rd'] = '00010'
+			ground_truth['rs1'] = '00001'
+
+			if instr == 'fence.i':
+				ground_truth['imm12'] = '000000000001'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
 
 	def test_store_instructions(self):
 		instructions = ['sb', 'sh', 'sw', 'sd']
