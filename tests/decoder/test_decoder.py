@@ -44,7 +44,31 @@ test_instruction['sra'] = '0100000' + '00010' + '00001' + '101' + '00011' + '011
 test_instruction['or'] = '0000000' + '00010' + '00001' + '110' + '00011' + '01100' + '11' 
 test_instruction['and'] = '0000000' + '00010' + '00001' + '111' + '00011' + '01100' + '11' 
 
+test_instruction['addiw'] = '000000000001' + '00001' + '000' + '00001' + '00110' + '11'
+test_instruction['slliw'] = '000000' + '0' + '00001' + '00001' + '001' + '00001' + '00110' + '11'
+test_instruction['srliw'] = '000000' + '0' + '00001' + '00001' + '101' + '00001' + '00110' + '11'
+test_instruction['sraiw'] = '010000' + '0' + '00001' + '00001' + '101' + '00001' + '00110' + '11'
+
 class TestDecoder(unittest.TestCase):
+
+	def test_arithmetic_immw_instructions(self):
+		instructions = ['addiw', 'slliw', 'srliw', 'sraiw']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rd'] = '00001'
+			
+			if instr == 'addiw':
+				ground_truth['imm12'] = '000000000001'
+			else:
+				ground_truth['shamtw'] = '00001'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_arithmetic_reg_instructions(self):
 		instructions = ['add', 'sub', 'sll', 'slt', 'sltu', 'xor', 'srl', 'sra', 'or', 'and']

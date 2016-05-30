@@ -21,7 +21,7 @@ def get_int(binary_str):
 	"""
 	return str(int(binary_str, base=2))
 
-def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None, shamt=None):
+def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None, shamt=None, shamtw=None):
 	"""	
 	Wraps the non-empty arguments and the instruction name into a dictionary with
 	arguments as keys and vals as values
@@ -35,9 +35,10 @@ def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12h
 	:param str imm12: Immediate 12
 	:param str imm20: Immediate 20
 	:param str shamt: Shift args
+	:param str shamtw: Shift args
 	"""
-	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12, shamt]
-	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12', 'shamt']
+	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12, shamt, shamtw]
+	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12', 'shamt', 'shamtw']
 
 	output_dict = defaultdict()
 	output_dict['instr'] = instr
@@ -50,6 +51,16 @@ def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12h
 		print_dic(output_dict)
 
 	return output_dict
+
+def print_dic(dictionary):
+	"""
+	Utility function to print the output dictionary for 
+	debug purposes
+
+	:param dictionary dictionary: Dictionary object of the decoded instruction
+	"""
+	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
+	print json_dict
 
 instruction_list = lambda:defaultdict(instruction_list)
 instruction_table = instruction_list()
@@ -68,7 +79,7 @@ instruction_table['0x1b'] = 'jal'
 ## Upper Immediate
 instruction_table['0x0d'] = 'lui'
 instruction_table['0x05'] = 'auipc'
-## Arithmetic & Computation
+## Arithmetic & Computation Immediate
 instruction_table['0x04']['0'] = 'addi'
 instruction_table['0x04']['1'] = 'slli'
 instruction_table['0x04']['2'] = 'slti'
@@ -78,7 +89,7 @@ instruction_table['0x04']['5']['0'] = 'srli'
 instruction_table['0x04']['5']['16'] = 'srai'
 instruction_table['0x04']['6'] = 'ori'
 instruction_table['0x04']['7'] = 'andi'
-
+## Arithmetic & Computation Register to Register
 instruction_table['0x0c']['0']['0'] = 'add'
 instruction_table['0x0c']['0']['32'] = 'sub'
 instruction_table['0x0c']['1']['0'] = 'sll'
@@ -90,15 +101,11 @@ instruction_table['0x0c']['5']['32'] = 'sra'
 instruction_table['0x0c']['6']['0'] = 'or'
 instruction_table['0x0c']['7']['0'] = 'and'
 
-def print_dic(dictionary):
-	"""
-	Utility function to print the output dictionary for 
-	debug purposes
+instruction_table['0x06']['0'] = 'addiw'
+instruction_table['0x06']['1'] = 'slliw'
+instruction_table['0x06']['5']['0'] = 'srliw'
+instruction_table['0x06']['5']['16'] = 'sraiw'
 
-	:param dictionary dictionary: Dictionary object of the decoded instruction
-	"""
-	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
-	print json_dict
 
 def decode(instruction, debug = False):
 	"""	
@@ -180,14 +187,30 @@ def decode(instruction, debug = False):
 		rs2 = instruction[-25:-20]
 		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rd=rd, debug=debug)
 
+	elif get_hex(family) == '0x06':
+		funct3 = get_int(instruction[-15:-12])
+		
+		rs1 = instruction[-20:-15]
+		rd = instruction[-12:-7]
+		if funct3 == '0':
+			imm12 = instruction[:12]
+			instruction_name = instruction_table[get_hex(family)][funct3]
+			return get_output(instr=instruction_name ,rs1=rs1, rd=rd, imm12=imm12, debug=debug) 
+		
+		elif funct3 == '1':
+			shamtw = instruction[-25:-20]
+			instruction_name = instruction_table[get_hex(family)][funct3]
+			return get_output(instr=instruction_name ,rs1=rs1, rd=rd, shamtw=shamtw, debug=debug) 
+		
+		else:
+			shamtw = instruction[-25:-20]
+			slice_6 = get_int(instruction[:6])
+			instruction_name = instruction_table[get_hex(family)][funct3][slice_6]
+			return get_output(instr=instruction_name ,rs1=rs1, rd=rd, shamtw=shamtw, debug=debug) 
+	
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
-
-instruction_table['0x06']['0'] = 'addiw'
-instruction_table['0x06']['0'] = 'slliw'
-instruction_table['0x06']['5']['0'] = 'srliw'
-instruction_table['0x06']['5']['32'] = 'sraiw'
 
 instruction_table['0x00']['0'] = 'lb'
 instruction_table['0x00']['1'] = 'lh'
