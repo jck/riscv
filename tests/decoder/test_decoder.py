@@ -49,7 +49,28 @@ test_instruction['slliw'] = '000000' + '0' + '00001' + '00001' + '001' + '00001'
 test_instruction['srliw'] = '000000' + '0' + '00001' + '00001' + '101' + '00001' + '00110' + '11'
 test_instruction['sraiw'] = '010000' + '0' + '00001' + '00001' + '101' + '00001' + '00110' + '11'
 
+test_instruction['addw'] = '0000000' + '00010' + '00001' + '000' + '00011' + '01110' + '11' 
+test_instruction['subw'] = '0100000' + '00010' + '00001' + '000' + '00011' + '01110' + '11' 
+test_instruction['sllw'] = '0000000' + '00010' + '00001' + '001' + '00011' + '01110' + '11' 
+test_instruction['srlw'] = '0000000' + '00010' + '00001' + '101' + '00011' + '01110' + '11' 
+test_instruction['sraw'] = '0100000' + '00010' + '00001' + '101' + '00011' + '01110' + '11' 
+
 class TestDecoder(unittest.TestCase):
+
+	def test_arithmetic_regw_instructions(self):
+		instructions = ['addw', 'subw', 'sllw', 'srlw', 'sraw']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rs2'] = '00010'
+			ground_truth['rd'] = '00011'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_arithmetic_immw_instructions(self):
 		instructions = ['addiw', 'slliw', 'srliw', 'sraiw']

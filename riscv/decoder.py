@@ -106,6 +106,11 @@ instruction_table['0x06']['1'] = 'slliw'
 instruction_table['0x06']['5']['0'] = 'srliw'
 instruction_table['0x06']['5']['16'] = 'sraiw'
 
+instruction_table['0x0e']['0']['0'] = 'addw'
+instruction_table['0x0e']['0']['32'] = 'subw'
+instruction_table['0x0e']['1']['0'] = 'sllw'
+instruction_table['0x0e']['5']['0'] = 'srlw'
+instruction_table['0x0e']['5']['32'] = 'sraw'
 
 def decode(instruction, debug = False):
 	"""	
@@ -208,6 +213,17 @@ def decode(instruction, debug = False):
 			instruction_name = instruction_table[get_hex(family)][funct3][slice_6]
 			return get_output(instr=instruction_name ,rs1=rs1, rd=rd, shamtw=shamtw, debug=debug) 
 	
+	elif get_hex(family) == '0x0e':
+		funct3 = get_int(instruction[-15:-12])
+		
+		slice_7 = get_int(instruction[:7])
+		instruction_name = instruction_table[get_hex(family)][funct3][slice_7]
+		
+		rd = instruction[-12:-7]
+		rs1 = instruction[-20:-15]
+		rs2 = instruction[-25:-20]
+		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rd=rd, debug=debug)
+
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
