@@ -63,7 +63,25 @@ test_instruction['lbu'] = '000000000001' + '00001' + '100' + '00010' + '00000' +
 test_instruction['lhu'] = '000000000001' + '00001' + '101' + '00010' + '00000' + '11' 
 test_instruction['lwu'] = '000000000001' + '00001' + '110' + '00010' + '00000' + '11' 
 
+test_instruction['sb'] = '0000010' + '00001' + '00010' + '000' + '00001' + '01000' + '11' 
+test_instruction['sh'] = '0000010' + '00001' + '00010' + '001' + '00001' + '01000' + '11' 
+test_instruction['sw'] = '0000010' + '00001' + '00010' + '010' + '00001' + '01000' + '11' 
+test_instruction['sd'] = '0000010' + '00001' + '00010' + '011' + '00001' + '01000' + '11' 
+
 class TestDecoder(unittest.TestCase):
+
+	def test_store_instructions(self):
+		instructions = ['sb', 'sh', 'sw', 'sd']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rs2'] = '00010'
+			ground_truth['imm12lo'] = '000001'
+			ground_truth['imm12hi'] = '000001'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
 
 	def test_load_instructions(self):
 		instructions = ['lb', 'lh', 'lw', 'ld', 'lbu', 'lhu', 'lwu']
