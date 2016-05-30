@@ -112,6 +112,14 @@ instruction_table['0x0e']['1']['0'] = 'sllw'
 instruction_table['0x0e']['5']['0'] = 'srlw'
 instruction_table['0x0e']['5']['32'] = 'sraw'
 
+instruction_table['0x00']['0'] = 'lb'
+instruction_table['0x00']['1'] = 'lh'
+instruction_table['0x00']['2'] = 'lw'
+instruction_table['0x00']['3'] = 'ld'
+instruction_table['0x00']['4'] = 'lbu'
+instruction_table['0x00']['5'] = 'lhu'
+instruction_table['0x00']['6'] = 'lwu'
+
 def decode(instruction, debug = False):
 	"""	
 	Decodes the binary instruction string input and returns a 
@@ -224,17 +232,19 @@ def decode(instruction, debug = False):
 		rs2 = instruction[-25:-20]
 		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rd=rd, debug=debug)
 
+	elif get_hex(family) == '0x00':
+		funct3 = get_int(instruction[-15:-12])
+		instruction_name = instruction_table[get_hex(family)][funct3]
+		
+		rd = instruction[-12:-7]
+		rs1 = instruction[-25:-20]
+		imm12 = instruction[:12]
+		return get_output(instr=instruction_name ,rs1=rs1, imm12=imm12, rd=rd, debug=debug)	
+
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
 
-instruction_table['0x00']['0'] = 'lb'
-instruction_table['0x00']['1'] = 'lh'
-instruction_table['0x00']['2'] = 'lw'
-instruction_table['0x00']['3'] = 'ld'
-instruction_table['0x00']['4'] = 'lbu'
-instruction_table['0x00']['5'] = 'lhu'
-instruction_table['0x00']['6'] = 'lwu'
 
 instruction_table['0x08']['0'] = 'sb'
 instruction_table['0x08']['1'] = 'sh'

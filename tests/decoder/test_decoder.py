@@ -55,7 +55,30 @@ test_instruction['sllw'] = '0000000' + '00010' + '00001' + '001' + '00011' + '01
 test_instruction['srlw'] = '0000000' + '00010' + '00001' + '101' + '00011' + '01110' + '11' 
 test_instruction['sraw'] = '0100000' + '00010' + '00001' + '101' + '00011' + '01110' + '11' 
 
+test_instruction['lb'] = '000000000001' + '00001' + '000' + '00010' + '00000' + '11' 
+test_instruction['lh'] = '000000000001' + '00001' + '001' + '00010' + '00000' + '11' 
+test_instruction['lw'] = '000000000001' + '00001' + '010' + '00010' + '00000' + '11' 
+test_instruction['ld'] = '000000000001' + '00001' + '011' + '00010' + '00000' + '11' 
+test_instruction['lbu'] = '000000000001' + '00001' + '100' + '00010' + '00000' + '11' 
+test_instruction['lhu'] = '000000000001' + '00001' + '101' + '00010' + '00000' + '11' 
+test_instruction['lwu'] = '000000000001' + '00001' + '110' + '00010' + '00000' + '11' 
+
 class TestDecoder(unittest.TestCase):
+
+	def test_load_instructions(self):
+		instructions = ['lb', 'lh', 'lw', 'ld', 'lbu', 'lhu', 'lwu']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rd'] = '00010'
+			ground_truth['imm12'] = '000000000001'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_arithmetic_regw_instructions(self):
 		instructions = ['addw', 'subw', 'sllw', 'srlw', 'sraw']
