@@ -215,34 +215,24 @@ instruction_table['0x14']['24']['1']['3'] = 'fcvt.lu.d'
 instruction_table['0x14']['28']['1']['0']['0'] = 'fmv.x.d'
 instruction_table['0x14']['28']['1']['0']['1'] = 'fclass.d'
 
-elif get_hex(family) == '0x14':
-		slice_5 = get_int(instruction[:5])
-		slice_2 = get_int(instruction[-27:-25])
-		
-		rs2 = instruction[-25:-20]
-		rs1 = instruction[-20:-15]
-		rd = instruction[-12:-7]
+instruction_table['0x14']['26']['0']['0'] = 'fcvt.s.w'
+instruction_table['0x14']['26']['0']['1'] = 'fcvt.s.wu'
+instruction_table['0x14']['26']['0']['2'] = 'fcvt.s.l'
+instruction_table['0x14']['26']['0']['3'] = 'fcvt.s.lu'
 
-		if slice_5 in ['4','5','20']:
-			funct3 = get_int(instruction[-15:-12])
-			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][funct3]
-			return get_output(instr=instruction_name, rs1=rs1, rs2=rs2, rd=rd, debug=debug)
-		elif slice_5 == '8':
-			instruction_name = instruction_table[get_hex(family)][slice_5][get_int(rs2)]
-			rm = instruction[-15:-12]
-			return get_output(instr=instruction_name, rs1=rs1, rd=rd, rm=rm, debug=debug)
-		elif slice_5 == '24':
-			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][get_int(rs2)]
-			rm = instruction[-15:-12]
-			return get_output(instr=instruction_name, rs1=rs1, rd=rd, rm=rm, debug=debug)
-		elif slice_5 == '28':
-			funct3 = get_int(instruction[-15:-12])
-			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][get_int(rs2)][funct3]
-			return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)	
-		else : 		
-			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2]
-			rm = instruction[-15:-12]
-			return get_output(instr=instruction_name, rs1=rs1, rs2=rs2, rd=rd, rm=rm, debug=debug)
+instruction_table['0x14']['26']['1']['0'] = 'fcvt.d.w'
+instruction_table['0x14']['26']['1']['1'] = 'fcvt.d.wu'
+instruction_table['0x14']['26']['1']['2'] = 'fcvt.d.l'
+instruction_table['0x14']['26']['1']['3'] = 'fcvt.d.lu'
+
+instruction_table['0x14']['30']['0']['0'] = 'fmv.s.x'
+instruction_table['0x14']['30']['1']['0'] = 'fmv.d.x'
+
+instruction_table['0x01']['2'] = 'flw'
+instruction_table['0x01']['3'] = 'fld'
+
+instruction_table['0x09']['2'] = 'fsw'
+instruction_table['0x09']['3'] = 'fsd'
 
 def decode(instruction, debug = False):
 	"""	
@@ -417,13 +407,77 @@ def decode(instruction, debug = False):
 		else : 
 			return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)
 
-	
+	elif get_hex(family) == '0x14':
+		slice_5 = get_int(instruction[:5])
+		slice_2 = get_int(instruction[-27:-25])
+		
+		rs2 = instruction[-25:-20]
+		rs1 = instruction[-20:-15]
+		rd = instruction[-12:-7]
+
+		if slice_5 in ['4','5','20','30']:
+			funct3 = get_int(instruction[-15:-12])
+			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][funct3]
+			if slice_5 == '30':
+				return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)
+			else:
+				return get_output(instr=instruction_name, rs1=rs1, rs2=rs2, rd=rd, debug=debug)
+		
+		elif slice_5 == '8':
+			instruction_name = instruction_table[get_hex(family)][slice_5][get_int(rs2)]
+			rm = instruction[-15:-12]
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, rm=rm, debug=debug)
+		
+		elif slice_5 == '24' or slice_5 == '26':
+			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][get_int(rs2)]
+			rm = instruction[-15:-12]
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, rm=rm, debug=debug)
+		
+		elif slice_5 == '28':
+			funct3 = get_int(instruction[-15:-12])
+			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][get_int(rs2)][funct3]
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)	
+		
+		else : 		
+			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2]
+			rm = instruction[-15:-12]
+			return get_output(instr=instruction_name, rs1=rs1, rs2=rs2, rd=rd, rm=rm, debug=debug)
+
+	elif get_hex(family) == '0x01':
+		funct3 = get_int(instruction[-15:-12])
+		instruction_name = instruction_table[get_hex(family)][funct3]
+		
+		rs1 = instruction[-20:-15]
+		rd = instruction[-12:-7]
+		imm12 = instruction[:12]
+
+		return get_output(instr=instruction_name ,rd=rd, imm12=imm12, rs1=rs1,debug = debug)
+
+	elif get_hex(family) == '0x09':
+		funct3 = get_int(instruction[-15:-12])
+		instruction_name = instruction_table[get_hex(family)][funct3]
+		
+		rs1 = instruction[-20:-15]
+		rs2 = instruction[-25:-20]
+		imm12lo = instruction[6] + instruction[-12:-7]
+		imm12hi = instruction[:6]
+		
+		return get_output(instr=instruction_name ,rs1=rs1, imm12lo=imm12lo, imm12hi=imm12hi, rs2=rs2, debug = debug)
+
+	elif get_hex(family) in ['0x10','0x11','0x12','0x13'] :
+		slice_2 = get_int(instruction[-27:-25])
+		instruction_name = instruction_table[get_hex(family)][]
+		
+		rs1 = instruction[-20:-15]
+		rs2 = instruction[-25:-20]
+		rs3 = instruction[:5]
+		rm = instruction[-15:-12]
+
+		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rs3=rs3, rm=rm, debug = debug)
 
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
-
-
 
 
 
@@ -444,13 +498,6 @@ instruction_table['0x1C']['5'] = 'csrrwi'
 instruction_table['0x1C']['6'] = 'csrrsi'
 instruction_table['0x1C']['7'] = 'csrrci'
 
-
-
-instruction_table['0x01']['2'] = 'flw'
-instruction_table['0x01']['3'] = 'fld'
-
-instruction_table['0x09']['2'] = 'fsw'
-instruction_table['0x09']['3'] = 'fsd'
 
 instruction_table['0x10']['0'] = 'fmadd.s'
 instruction_table['0x11']['0'] = 'fmsub.s'
