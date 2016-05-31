@@ -205,15 +205,15 @@ instruction_table['0x14']['24']['0']['0'] = 'fcvt.w.s'
 instruction_table['0x14']['24']['0']['1'] = 'fcvt.wu.s'
 instruction_table['0x14']['24']['0']['2'] = 'fcvt.l.s'
 instruction_table['0x14']['24']['0']['3'] = 'fcvt.lu.s'
-instruction_table['0x14']['28']['0']['0'] = 'fmv.x.s'
-instruction_table['0x14']['28']['0']['0'] = 'fclass.s'
+instruction_table['0x14']['28']['0']['0']['0'] = 'fmv.x.s'
+instruction_table['0x14']['28']['0']['0']['1'] = 'fclass.s'
 
 instruction_table['0x14']['24']['1']['0'] = 'fcvt.w.d'
 instruction_table['0x14']['24']['1']['1'] = 'fcvt.wu.d'
 instruction_table['0x14']['24']['1']['2'] = 'fcvt.l.d'
 instruction_table['0x14']['24']['1']['3'] = 'fcvt.lu.d'
-instruction_table['0x14']['28']['1']['0'] = 'fmv.x.d'
-instruction_table['0x14']['28']['1']['0'] = 'fclass.d'
+instruction_table['0x14']['28']['1']['0']['0'] = 'fmv.x.d'
+instruction_table['0x14']['28']['1']['0']['1'] = 'fclass.d'
 
 elif get_hex(family) == '0x14':
 		slice_5 = get_int(instruction[:5])
@@ -223,14 +223,22 @@ elif get_hex(family) == '0x14':
 		rs1 = instruction[-20:-15]
 		rd = instruction[-12:-7]
 
-		if slice_5 in ['4','5','20','24','28']:
+		if slice_5 in ['4','5','20']:
 			funct3 = get_int(instruction[-15:-12])
 			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][funct3]
 			return get_output(instr=instruction_name, rs1=rs1, rs2=rs2, rd=rd, debug=debug)
 		elif slice_5 == '8':
+			instruction_name = instruction_table[get_hex(family)][slice_5][get_int(rs2)]
+			rm = instruction[-15:-12]
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, rm=rm, debug=debug)
+		elif slice_5 == '24':
 			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][get_int(rs2)]
 			rm = instruction[-15:-12]
 			return get_output(instr=instruction_name, rs1=rs1, rd=rd, rm=rm, debug=debug)
+		elif slice_5 == '28':
+			funct3 = get_int(instruction[-15:-12])
+			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][get_int(rs2)][funct3]
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)	
 		else : 		
 			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2]
 			rm = instruction[-15:-12]
