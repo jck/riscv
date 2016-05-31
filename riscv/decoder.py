@@ -234,6 +234,33 @@ instruction_table['0x01']['3'] = 'fld'
 instruction_table['0x09']['2'] = 'fsw'
 instruction_table['0x09']['3'] = 'fsd'
 
+instruction_table['0x10']['0'] = 'fmadd.s'
+instruction_table['0x11']['0'] = 'fmsub.s'
+instruction_table['0x12']['0'] = 'fnmsub.s'
+instruction_table['0x13']['0'] = 'fnmadd.s'
+
+instruction_table['0x10']['1'] = 'fmadd.d'
+instruction_table['0x11']['1'] = 'fmsub.d'
+instruction_table['0x12']['1'] = 'fnmsub.d'
+instruction_table['0x13']['1'] = 'fnmadd.d'
+# SYSTEM
+instruction_table['0x1C']['0']['0'] = 'ecall'
+instruction_table['0x1C']['0']['1'] = 'ebreak'
+instruction_table['0x1C']['0']['2'] = 'uret'
+instruction_table['0x1C']['0']['258'] = 'sret'
+instruction_table['0x1C']['0']['514'] = 'hret'
+instruction_table['0x1C']['0']['770'] = 'mret'
+instruction_table['0x1C']['0']['260'] = 'sfence.vm'
+instruction_table['0x1C']['0']['261'] = 'wfi'
+
+instruction_table['0x1C']['1'] = 'csrrw'
+instruction_table['0x1C']['2'] = 'csrrs'
+instruction_table['0x1C']['3'] = 'csrrc'
+instruction_table['0x1C']['5'] = 'csrrwi'
+instruction_table['0x1C']['6'] = 'csrrsi'
+instruction_table['0x1C']['7'] = 'csrrci'
+
+
 def decode(instruction, debug = False):
 	"""	
 	Decodes the binary instruction string input and returns a 
@@ -466,7 +493,7 @@ def decode(instruction, debug = False):
 
 	elif get_hex(family) in ['0x10','0x11','0x12','0x13'] :
 		slice_2 = get_int(instruction[-27:-25])
-		instruction_name = instruction_table[get_hex(family)][]
+		instruction_name = instruction_table[get_hex(family)][slice_2]
 		
 		rs1 = instruction[-20:-15]
 		rs2 = instruction[-25:-20]
@@ -475,36 +502,31 @@ def decode(instruction, debug = False):
 
 		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rs3=rs3, rm=rm, debug = debug)
 
+	elif get_hex(family) == '0x1C':
+		funct3 = get_int(instruction[-15:-12])
+
+		if funct3 == '0':
+			slice_12 = get_int(instruction[:12])
+			
+			if slice_12 == '260':
+				instruction_name = instruction_table[get_hex(family)][funct3][slice_12]
+				rs1 = instruction[-20:-15]
+				return get_output(instr=instruction_name, rs1=rs1, debug = debug)
+			else :
+				instruction_name = instruction_table[get_hex(family)][funct3][slice_12]
+				return get_output(instr=instruction_name, rs1=rs1, debug = debug)
+
+		else:
+			instruction_name = instruction_table[get_hex(family)][funct3]
+
+			rs1 = instruction[-20:-15]
+			rd = instruction[-12:-7]
+			imm12 = instruction[:12]
+			return get_output(instr=instruction_name ,rd=rd, imm12=imm12, rs1=rs1,debug = debug)
+
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
 
 
 
-# SYSTEM
-instruction_table['0x1C']['0']['000'] = 'ecall'
-instruction_table['0x1C']['0']['001'] = 'ebreak'
-instruction_table['0x1C']['0']['002'] = 'uret'
-instruction_table['0x1C']['0']['102'] = 'sret'
-instruction_table['0x1C']['0']['202'] = 'hret'
-instruction_table['0x1C']['0']['302'] = 'mret'
-instruction_table['0x1C']['0']['104'] = 'sfence.vm'
-instruction_table['0x1C']['0']['105'] = 'wfi'
-
-instruction_table['0x1C']['1'] = 'csrrw'
-instruction_table['0x1C']['2'] = 'csrrs'
-instruction_table['0x1C']['3'] = 'csrrc'
-instruction_table['0x1C']['5'] = 'csrrwi'
-instruction_table['0x1C']['6'] = 'csrrsi'
-instruction_table['0x1C']['7'] = 'csrrci'
-
-
-instruction_table['0x10']['0'] = 'fmadd.s'
-instruction_table['0x11']['0'] = 'fmsub.s'
-instruction_table['0x12']['0'] = 'fnmsub.s'
-instruction_table['0x13']['0'] = 'fnmadd.s'
-
-instruction_table['0x10']['1'] = 'fmadd.d'
-instruction_table['0x11']['1'] = 'fmsub.d'
-instruction_table['0x12']['1'] = 'fnmsub.d'
-instruction_table['0x13']['1'] = 'fnmadd.d'
