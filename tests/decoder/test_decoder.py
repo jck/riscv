@@ -86,7 +86,37 @@ test_instruction['divuw'] = '0000001' + '00010' + '00001' + '101' + '00011' +'01
 test_instruction['remw'] = '0000001' + '00010' + '00001' + '110' + '00011' +'01110' + '11'
 test_instruction['remuw'] = '0000001' + '00010' + '00001' + '111' + '00011' +'01110' + '11'
 
+test_instruction['amoadd.w'] = '000' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amoxor.w'] = '001' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amoor.w'] = '010' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amoand.w'] = '011' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amomin.w'] = '100' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amomax.w'] = '101' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amominu.w'] = '110' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amomaxu.w'] = '111' + '00' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['amoswap.w'] = '000' + '01' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['lr.w'] = '000' + '10' + '00' + '00000' + '00001' + '010' + '00011' +'01011' + '11'
+test_instruction['sc.w'] = '000' + '11' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
+
+
 class TestDecoder(unittest.TestCase):
+
+	def test_atomic_instructions(self):
+		instructions = ['amoadd.w', 'amoxor.w', 'amoor.w', 'amoand.w', 'amomax.w', 'amomin.w', 'amomaxu.w', 'amominu.w', 'amoswap.w', 'lr.w', 'sc.w']		
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rd'] = '00011'
+			
+			if instr != 'lr.w':
+				ground_truth['rs2'] = '00010'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_divw_multw_instructions(self):
 		instructions = ['mulw', 'divw', 'divuw', 'remw', 'remuw']

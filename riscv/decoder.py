@@ -143,6 +143,19 @@ instruction_table['0x0e']['5']['1'] = 'divuw'
 instruction_table['0x0e']['6']['1'] = 'remw'
 instruction_table['0x0e']['7']['1'] = 'remuw'
 
+# RV32A
+instruction_table['0x0b']['2']['0']['0'] = 'amoadd.w'
+instruction_table['0x0b']['2']['0']['1'] = 'amoxor.w'
+instruction_table['0x0b']['2']['0']['2'] = 'amoor.w'
+instruction_table['0x0b']['2']['0']['3'] = 'amoand.w'
+instruction_table['0x0b']['2']['0']['4'] = 'amomin.w'
+instruction_table['0x0b']['2']['0']['5'] = 'amomax.w'
+instruction_table['0x0b']['2']['0']['6'] = 'amominu.w'
+instruction_table['0x0b']['2']['0']['7'] = 'amomaxu.w'
+instruction_table['0x0b']['2']['1']['0'] = 'amoswap.w'
+instruction_table['0x0b']['2']['2']['0'] = 'lr.w'
+instruction_table['0x0b']['2']['3']['0'] = 'sc.w'
+
 def decode(instruction, debug = False):
 	"""	
 	Decodes the binary instruction string input and returns a 
@@ -322,18 +335,6 @@ def decode(instruction, debug = False):
 
 
 
-# RV32A
-instruction_table['0x0b']['2']['0']['0'] = 'amoadd.w'
-instruction_table['0x0b']['2']['0']['1'] = 'amoxor.w'
-instruction_table['0x0b']['2']['0']['2'] = 'amoor.w'
-instruction_table['0x0b']['2']['0']['3'] = 'amoand.w'
-instruction_table['0x0b']['2']['0']['4'] = 'amomin.w'
-instruction_table['0x0b']['2']['0']['5'] = 'amomax.w'
-instruction_table['0x0b']['2']['0']['6'] = 'amominu.w'
-instruction_table['0x0b']['2']['0']['7'] = 'amomaxu.w'
-instruction_table['0x0b']['2']['1']['0'] = 'amoswap.w'
-instruction_table['0x0b']['2']['2']['0'] = 'lr.w'
-instruction_table['0x0b']['2']['3']['0'] = 'sc.w'
 
 # RV64A
 instruction_table['0x0b']['3']['0']['0'] = 'amoadd.d'
