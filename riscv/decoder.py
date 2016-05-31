@@ -298,7 +298,24 @@ def decode(instruction, debug = False):
 		rd = instruction[-12:-7]
 		
 		return get_output(instr=instruction_name, rs1=rs1, rd=rd, rs2=rs2, debug=debug)
-			
+	
+	elif get_hex(family) == '0x0b':
+		funct3 = get_int(instruction[-15:-12])
+
+		slice_3 = get_int(instruction[:3])
+		slice_2 = get_int(instruction[-29:-27])
+		
+		instruction_name = instruction_table[get_hex(family)][funct3][slice_2][slice_3]
+		
+		rs1 = instruction[-20:-15]
+		rd = instruction[-12:-7]
+
+		if slice_2 != '2':
+			rs2 = instruction[-25:-20]
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, rs2=rs2, debug=debug)
+		else : 
+			return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)
+
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
