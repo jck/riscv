@@ -100,18 +100,18 @@ instruction_table['0x0c']['5']['0'] = 'srl'
 instruction_table['0x0c']['5']['32'] = 'sra'
 instruction_table['0x0c']['6']['0'] = 'or'
 instruction_table['0x0c']['7']['0'] = 'and'
-
+## Extended Arithmetic & Computation Immediate
 instruction_table['0x06']['0'] = 'addiw'
 instruction_table['0x06']['1'] = 'slliw'
 instruction_table['0x06']['5']['0'] = 'srliw'
 instruction_table['0x06']['5']['16'] = 'sraiw'
-
+## Extended Arithmetic & Computation Register to Register
 instruction_table['0x0e']['0']['0'] = 'addw'
 instruction_table['0x0e']['0']['32'] = 'subw'
 instruction_table['0x0e']['1']['0'] = 'sllw'
 instruction_table['0x0e']['5']['0'] = 'srlw'
 instruction_table['0x0e']['5']['32'] = 'sraw'
-
+## Load
 instruction_table['0x00']['0'] = 'lb'
 instruction_table['0x00']['1'] = 'lh'
 instruction_table['0x00']['2'] = 'lw'
@@ -119,15 +119,15 @@ instruction_table['0x00']['3'] = 'ld'
 instruction_table['0x00']['4'] = 'lbu'
 instruction_table['0x00']['5'] = 'lhu'
 instruction_table['0x00']['6'] = 'lwu'
-
+## Store
 instruction_table['0x08']['0'] = 'sb'
 instruction_table['0x08']['1'] = 'sh'
 instruction_table['0x08']['2'] = 'sw'
 instruction_table['0x08']['3'] = 'sd'
-
+## Fence
 instruction_table['0x03']['0'] = 'fence'
 instruction_table['0x03']['1'] = 'fence.i'
-#RV32M
+# RV32M
 instruction_table['0x0c']['0']['1'] = 'mul'
 instruction_table['0x0c']['1']['1'] = 'mulh'
 instruction_table['0x0c']['2']['1'] = 'mulhsu'
@@ -136,6 +136,12 @@ instruction_table['0x0c']['4']['1'] = 'div'
 instruction_table['0x0c']['5']['1'] = 'divu'
 instruction_table['0x0c']['6']['1'] = 'rem'
 instruction_table['0x0c']['7']['1'] = 'remu'
+# RV64M
+instruction_table['0x0e']['0']['1'] = 'mulw'
+instruction_table['0x0e']['4']['1'] = 'divw'
+instruction_table['0x0e']['5']['1'] = 'divuw'
+instruction_table['0x0e']['6']['1'] = 'remw'
+instruction_table['0x0e']['7']['1'] = 'remuw'
 
 def decode(instruction, debug = False):
 	"""	
@@ -281,7 +287,7 @@ def decode(instruction, debug = False):
 			imm12 = instruction[:12]
 			return get_output(instr=instruction_name, rs1=rs1, rd=rd, imm12=imm12, debug=debug)
 
-	elif get_hex(family) == '0x0c':
+	elif get_hex(family) == '0x0c' or get_hex(family) == '0x0e':
 		funct3 = get_int(instruction[-15:-12])
 
 		slice_7 = get_int(instruction[:7])
@@ -298,12 +304,6 @@ def decode(instruction, debug = False):
 		print("Family :" + family)
 
 
-# RV64M
-instruction_table['0x0e']['0']['1'] = 'mulw'
-instruction_table['0x0e']['4']['1'] = 'divw'
-instruction_table['0x0e']['5']['1'] = 'divuw'
-instruction_table['0x0e']['6']['1'] = 'remw'
-instruction_table['0x0e']['7']['1'] = 'remuw'
 
 # RV32A
 instruction_table['0x0b']['2']['0']['0'] = 'amoadd.w'

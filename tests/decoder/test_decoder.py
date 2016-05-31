@@ -80,8 +80,28 @@ test_instruction['divu'] = '0000001' + '00010' + '00001' + '101' + '00011' +'011
 test_instruction['rem'] = '0000001' + '00010' + '00001' + '110' + '00011' +'01100' + '11'
 test_instruction['remu'] = '0000001' + '00010' + '00001' + '111' + '00011' +'01100' + '11'
 
+test_instruction['mulw'] = '0000001' + '00010' + '00001' + '000' + '00011' +'01110' + '11'
+test_instruction['divw'] = '0000001' + '00010' + '00001' + '100' + '00011' +'01110' + '11'
+test_instruction['divuw'] = '0000001' + '00010' + '00001' + '101' + '00011' +'01110' + '11'
+test_instruction['remw'] = '0000001' + '00010' + '00001' + '110' + '00011' +'01110' + '11'
+test_instruction['remuw'] = '0000001' + '00010' + '00001' + '111' + '00011' +'01110' + '11'
 
 class TestDecoder(unittest.TestCase):
+
+	def test_divw_multw_instructions(self):
+		instructions = ['mulw', 'divw', 'divuw', 'remw', 'remuw']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rs2'] = '00010'
+			ground_truth['rd'] = '00011'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_div_mult_instructions(self):
 		instructions = ['mul', 'mulh', 'mulhsu', 'mulhu', 'div', 'divu', 'rem', 'remu']
