@@ -127,6 +127,15 @@ instruction_table['0x08']['3'] = 'sd'
 
 instruction_table['0x03']['0'] = 'fence'
 instruction_table['0x03']['1'] = 'fence.i'
+#RV32M
+instruction_table['0x0c']['0']['1'] = 'mul'
+instruction_table['0x0c']['1']['1'] = 'mulh'
+instruction_table['0x0c']['2']['1'] = 'mulhsu'
+instruction_table['0x0c']['3']['1'] = 'mulhu'
+instruction_table['0x0c']['4']['1'] = 'div'
+instruction_table['0x0c']['5']['1'] = 'divu'
+instruction_table['0x0c']['6']['1'] = 'rem'
+instruction_table['0x0c']['7']['1'] = 'remu'
 
 def decode(instruction, debug = False):
 	"""	
@@ -271,53 +280,56 @@ def decode(instruction, debug = False):
 		else:
 			imm12 = instruction[:12]
 			return get_output(instr=instruction_name, rs1=rs1, rd=rd, imm12=imm12, debug=debug)
+
+	elif get_hex(family) == '0x0c':
+		funct3 = get_int(instruction[-15:-12])
+
+		slice_7 = get_int(instruction[:7])
+		instruction_name = instruction_table[get_hex(family)][funct3][slice_7]
+		
+		rs1 = instruction[-20:-15]
+		rs2 = instruction[-25:-20]
+		rd = instruction[-12:-7]
+		
+		return get_output(instr=instruction_name, rs1=rs1, rd=rd, rs2=rs2, debug=debug)
 			
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
 
-#RV32M
-instruction_table['0x0c']['0']['1'] = 'mul'
-instruction_table['0x0c']['1']['1'] = 'mulh'
-instruction_table['0x0c']['2']['1'] = 'mulhsu'
-instruction_table['0x0c']['3']['1'] = 'mulhu'
-instruction_table['0x0c']['4']['1'] = 'div'
-instruction_table['0x0c']['5']['1'] = 'divu'
-instruction_table['0x0c']['6']['1'] = 'rem'
-instruction_table['0x0c']['7']['1'] = 'remu'
 
 # RV64M
-instruction_table['0x0E']['0']['1'] = 'mulw'
-instruction_table['0x0E']['4']['1'] = 'divw'
-instruction_table['0x0E']['5']['1'] = 'divuw'
-instruction_table['0x0E']['6']['1'] = 'remw'
-instruction_table['0x0E']['7']['1'] = 'remuw'
+instruction_table['0x0e']['0']['1'] = 'mulw'
+instruction_table['0x0e']['4']['1'] = 'divw'
+instruction_table['0x0e']['5']['1'] = 'divuw'
+instruction_table['0x0e']['6']['1'] = 'remw'
+instruction_table['0x0e']['7']['1'] = 'remuw'
 
 # RV32A
-instruction_table['0x0B']['2']['0']['0'] = 'amoadd.w'
-instruction_table['0x0B']['2']['0']['1'] = 'amoxor.w'
-instruction_table['0x0B']['2']['0']['2'] = 'amoor.w'
-instruction_table['0x0B']['2']['0']['3'] = 'amoand.w'
-instruction_table['0x0B']['2']['0']['4'] = 'amomin.w'
-instruction_table['0x0B']['2']['0']['5'] = 'amomax.w'
-instruction_table['0x0B']['2']['0']['6'] = 'amominu.w'
-instruction_table['0x0B']['2']['0']['7'] = 'amomaxu.w'
-instruction_table['0x0B']['2']['1']['0'] = 'amoswap.w'
-instruction_table['0x0B']['2']['2']['0'] = 'lr.w'
-instruction_table['0x0B']['2']['3']['0'] = 'sc.w'
+instruction_table['0x0b']['2']['0']['0'] = 'amoadd.w'
+instruction_table['0x0b']['2']['0']['1'] = 'amoxor.w'
+instruction_table['0x0b']['2']['0']['2'] = 'amoor.w'
+instruction_table['0x0b']['2']['0']['3'] = 'amoand.w'
+instruction_table['0x0b']['2']['0']['4'] = 'amomin.w'
+instruction_table['0x0b']['2']['0']['5'] = 'amomax.w'
+instruction_table['0x0b']['2']['0']['6'] = 'amominu.w'
+instruction_table['0x0b']['2']['0']['7'] = 'amomaxu.w'
+instruction_table['0x0b']['2']['1']['0'] = 'amoswap.w'
+instruction_table['0x0b']['2']['2']['0'] = 'lr.w'
+instruction_table['0x0b']['2']['3']['0'] = 'sc.w'
 
 # RV64A
-instruction_table['0x0B']['3']['0']['0'] = 'amoadd.d'
-instruction_table['0x0B']['3']['0']['1'] = 'amoxor.d'
-instruction_table['0x0B']['3']['0']['2'] = 'amoor.d'
-instruction_table['0x0B']['3']['0']['3'] = 'amoand.d'
-instruction_table['0x0B']['3']['0']['4'] = 'amomin.d'
-instruction_table['0x0B']['3']['0']['5'] = 'amomax.d'
-instruction_table['0x0B']['3']['0']['6'] = 'amominu.d'
-instruction_table['0x0B']['3']['0']['7'] = 'amomaxu.d'
-instruction_table['0x0B']['3']['1']['0'] = 'amoswap.d'
-instruction_table['0x0B']['3']['2']['0'] = 'lr.d'
-instruction_table['0x0B']['3']['3']['0'] = 'sc.d'
+instruction_table['0x0b']['3']['0']['0'] = 'amoadd.d'
+instruction_table['0x0b']['3']['0']['1'] = 'amoxor.d'
+instruction_table['0x0b']['3']['0']['2'] = 'amoor.d'
+instruction_table['0x0b']['3']['0']['3'] = 'amoand.d'
+instruction_table['0x0b']['3']['0']['4'] = 'amomin.d'
+instruction_table['0x0b']['3']['0']['5'] = 'amomax.d'
+instruction_table['0x0b']['3']['0']['6'] = 'amominu.d'
+instruction_table['0x0b']['3']['0']['7'] = 'amomaxu.d'
+instruction_table['0x0b']['3']['1']['0'] = 'amoswap.d'
+instruction_table['0x0b']['3']['2']['0'] = 'lr.d'
+instruction_table['0x0b']['3']['3']['0'] = 'sc.d'
 
 # SYSTEM
 instruction_table['0x1C']['0']['000'] = 'ecall'

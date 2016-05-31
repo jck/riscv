@@ -71,7 +71,32 @@ test_instruction['sd'] = '0000010' + '00001' + '00010' + '011' + '00001' + '0100
 test_instruction['fence'] = '0000' + '11111111' + '00001' + '000' + '00010' + '00011' + '11' 
 test_instruction['fence.i'] = '000000000001' + '00001' + '001' + '00010' + '00011' + '11' 
 
+test_instruction['mul'] = '0000001' + '00010' + '00001' + '000' + '00011' +'01100' + '11'
+test_instruction['mulh'] = '0000001' + '00010' + '00001' + '001' + '00011' +'01100' + '11'
+test_instruction['mulhsu'] = '0000001' + '00010' + '00001' + '010' + '00011' +'01100' + '11'
+test_instruction['mulhu'] = '0000001' + '00010' + '00001' + '011' + '00011' +'01100' + '11'
+test_instruction['div'] = '0000001' + '00010' + '00001' + '100' + '00011' +'01100' + '11'
+test_instruction['divu'] = '0000001' + '00010' + '00001' + '101' + '00011' +'01100' + '11'
+test_instruction['rem'] = '0000001' + '00010' + '00001' + '110' + '00011' +'01100' + '11'
+test_instruction['remu'] = '0000001' + '00010' + '00001' + '111' + '00011' +'01100' + '11'
+
+
 class TestDecoder(unittest.TestCase):
+
+	def test_div_mult_instructions(self):
+		instructions = ['mul', 'mulh', 'mulhsu', 'mulhu', 'div', 'divu', 'rem', 'remu']
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rs2'] = '00010'
+			ground_truth['rd'] = '00011'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_fence_instructions(self):
 		instructions = ['fence', 'fence.i']
