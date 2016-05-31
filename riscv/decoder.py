@@ -21,7 +21,7 @@ def get_int(binary_str):
 	"""
 	return str(int(binary_str, base=2))
 
-def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None, shamt=None, shamtw=None):
+def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None, shamt=None, shamtw=None, rm=None):
 	"""	
 	Wraps the non-empty arguments and the instruction name into a dictionary with
 	arguments as keys and vals as values
@@ -30,6 +30,7 @@ def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12h
 	:param str rs1: Source register 1
 	:param str rs2: Source register 2
 	:param str rd: Destination register
+	:param str rm: Extended register
 	:param str imm12lo: Lower 6 bits of Immediate 12
 	:param str imm12hi: Higher 6 bits of Immediate 12
 	:param str imm12: Immediate 12
@@ -37,8 +38,8 @@ def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12h
 	:param str shamt: Shift args
 	:param str shamtw: Shift args
 	"""
-	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12, shamt, shamtw]
-	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12', 'shamt', 'shamtw']
+	arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12, shamt, shamtw, rm]
+	arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12', 'shamt', 'shamtw', 'rm']
 
 	output_dict = defaultdict()
 	output_dict['instr'] = instr
@@ -155,6 +156,42 @@ instruction_table['0x0b']['2']['0']['7'] = 'amomaxu.w'
 instruction_table['0x0b']['2']['1']['0'] = 'amoswap.w'
 instruction_table['0x0b']['2']['2']['0'] = 'lr.w'
 instruction_table['0x0b']['2']['3']['0'] = 'sc.w'
+# RV64A
+instruction_table['0x0b']['3']['0']['0'] = 'amoadd.d'
+instruction_table['0x0b']['3']['0']['1'] = 'amoxor.d'
+instruction_table['0x0b']['3']['0']['2'] = 'amoor.d'
+instruction_table['0x0b']['3']['0']['3'] = 'amoand.d'
+instruction_table['0x0b']['3']['0']['4'] = 'amomin.d'
+instruction_table['0x0b']['3']['0']['5'] = 'amomax.d'
+instruction_table['0x0b']['3']['0']['6'] = 'amominu.d'
+instruction_table['0x0b']['3']['0']['7'] = 'amomaxu.d'
+instruction_table['0x0b']['3']['1']['0'] = 'amoswap.d'
+instruction_table['0x0b']['3']['2']['0'] = 'lr.d'
+instruction_table['0x0b']['3']['3']['0'] = 'sc.d'
+# F/D EXTENSIONS
+instruction_table['0x14']['0']['0'] = 'fadd.s'
+instruction_table['0x14']['1']['0'] = 'fsub.s'
+instruction_table['0x14']['2']['0'] = 'fmul.s'
+instruction_table['0x14']['3']['0'] = 'fdiv.s'
+instruction_table['0x14']['11']['0'] = 'fsqrt.s'
+instruction_table['0x14']['4']['0']['0'] = 'fsgnj.s'
+instruction_table['0x14']['4']['0']['1'] = 'fsgnjn.s'
+instruction_table['0x14']['4']['0']['2'] = 'fsgnjx.s'
+instruction_table['0x14']['5']['0']['0'] = 'fmin.s'
+instruction_table['0x14']['5']['0']['1'] = 'fmax.s'
+
+instruction_table['0x14']['0']['1'] = 'fadd.d'
+instruction_table['0x14']['1']['1'] = 'fsub.d'
+instruction_table['0x14']['2']['1'] = 'fmul.d'
+instruction_table['0x14']['3']['1'] = 'fdiv.d'
+instruction_table['0x14']['8']['0'] = 'fcvt.s.d'
+instruction_table['0x14']['8']['1'] = 'fcvt.d.s'
+instruction_table['0x14']['11']['1'] = 'fsqrt.d'
+instruction_table['0x14']['4']['1']['0'] = 'fsgnj.d'
+instruction_table['0x14']['4']['1']['1'] = 'fsgnjn.d'
+instruction_table['0x14']['4']['1']['2'] = 'fsgnjx.d'
+instruction_table['0x14']['5']['1']['0'] = 'fmin.d'
+instruction_table['0x14']['5']['1']['1'] = 'fmax.s'
 
 def decode(instruction, debug = False):
 	"""	
@@ -329,6 +366,23 @@ def decode(instruction, debug = False):
 		else : 
 			return get_output(instr=instruction_name, rs1=rs1, rd=rd, debug=debug)
 
+	elif get_hex(family) == '0x14':
+		slice_5 = get_int(instruction[:5])
+		slice_2 = get_int(instruction[-27:-25])
+		
+		rs2 = instruction[-25:-20]
+		rs1 = instruction[-20:-15]
+		rd = instruction[-12:-7]
+
+		if slice_5 in ['4','5']:
+			funct3 = get_int(instruction[-15:-12])
+			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2][funct3]
+			return get_output(instr=instruction_name, rs1=rs1, rs2=rs2, rd=rd, debug=debug)
+		else : 		
+			instruction_name = instruction_table[get_hex(family)][slice_5][slice_2]
+			rm = instruction[-15:-12]
+			return get_output(instr=instruction_name, rs1=rs1, rs2=rs2, rd=rd, rm=rm, debug=debug)
+
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
@@ -336,18 +390,6 @@ def decode(instruction, debug = False):
 
 
 
-# RV64A
-instruction_table['0x0b']['3']['0']['0'] = 'amoadd.d'
-instruction_table['0x0b']['3']['0']['1'] = 'amoxor.d'
-instruction_table['0x0b']['3']['0']['2'] = 'amoor.d'
-instruction_table['0x0b']['3']['0']['3'] = 'amoand.d'
-instruction_table['0x0b']['3']['0']['4'] = 'amomin.d'
-instruction_table['0x0b']['3']['0']['5'] = 'amomax.d'
-instruction_table['0x0b']['3']['0']['6'] = 'amominu.d'
-instruction_table['0x0b']['3']['0']['7'] = 'amomaxu.d'
-instruction_table['0x0b']['3']['1']['0'] = 'amoswap.d'
-instruction_table['0x0b']['3']['2']['0'] = 'lr.d'
-instruction_table['0x0b']['3']['3']['0'] = 'sc.d'
 
 # SYSTEM
 instruction_table['0x1C']['0']['000'] = 'ecall'
@@ -366,30 +408,6 @@ instruction_table['0x1C']['5'] = 'csrrwi'
 instruction_table['0x1C']['6'] = 'csrrsi'
 instruction_table['0x1C']['7'] = 'csrrci'
 
-# F/D EXTENSIONS
-instruction_table['0x14']['00']['0'] = 'fadd.s'
-instruction_table['0x14']['01']['0'] = 'fsub.s'
-instruction_table['0x14']['02']['0'] = 'fmul.s'
-instruction_table['0x14']['03']['0'] = 'fdiv.s'
-instruction_table['0x14']['0B']['0'] = 'fsqrt.s'
-instruction_table['0x14']['04']['0']['0'] = 'fsgnj.s'
-instruction_table['0x14']['04']['0']['1'] = 'fsgnjn.s'
-instruction_table['0x14']['04']['0']['2'] = 'fsgnjx.s'
-instruction_table['0x14']['05']['0']['0'] = 'fmin.s'
-instruction_table['0x14']['05']['0']['1'] = 'fmax.s'
-
-instruction_table['0x14']['00']['1'] = 'fadd.d'
-instruction_table['0x14']['01']['1'] = 'fsub.d'
-instruction_table['0x14']['02']['1'] = 'fmul.d'
-instruction_table['0x14']['03']['1'] = 'fdiv.d'
-instruction_table['0x14']['08']['0'] = 'fcvt.s.d'
-instruction_table['0x14']['08']['1'] = 'fcvt.d.s'
-instruction_table['0x14']['0B']['1'] = 'fsqrt.d'
-instruction_table['0x14']['04']['1']['0'] = 'fsgnj.d'
-instruction_table['0x14']['04']['1']['1'] = 'fsgnjn.d'
-instruction_table['0x14']['04']['1']['2'] = 'fsgnjx.d'
-instruction_table['0x14']['05']['1']['0'] = 'fmin.d'
-instruction_table['0x14']['05']['1']['1'] = 'fmax.s'
 
 instruction_table['0x14']['14']['0']['0'] = 'fle.s'
 instruction_table['0x14']['14']['0']['1'] = 'flt.s'

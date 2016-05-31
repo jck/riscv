@@ -98,8 +98,67 @@ test_instruction['amoswap.w'] = '000' + '01' + '00' + '00010' + '00001' + '010' 
 test_instruction['lr.w'] = '000' + '10' + '00' + '00000' + '00001' + '010' + '00011' +'01011' + '11'
 test_instruction['sc.w'] = '000' + '11' + '00' + '00010' + '00001' + '010' + '00011' +'01011' + '11'
 
+test_instruction['amoadd.d'] = '000' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amoxor.d'] = '001' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amoor.d'] = '010' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amoand.d'] = '011' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amomin.d'] = '100' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amomax.d'] = '101' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amominu.d'] = '110' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amomaxu.d'] = '111' + '00' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['amoswap.d'] = '000' + '01' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['lr.d'] = '000' + '10' + '00' + '00000' + '00001' + '011' + '00011' +'01011' + '11'
+test_instruction['sc.d'] = '000' + '11' + '00' + '00010' + '00001' + '011' + '00011' +'01011' + '11'
+
+test_instruction['fadd.s'] = '00000' + '00' + '00010' + '00001' + '011' + '00100' + '10100' + '11'
+test_instruction['fsub.s'] = '00001' + '00' + '00010' + '00001' + '011' + '00100' + '10100' + '11'
+test_instruction['fmul.s'] = '00010' + '00' + '00010' + '00001' + '011' + '00100' + '10100' + '11'
+test_instruction['fdiv.s'] = '00011' + '00' + '00010' + '00001' + '011' + '00100' + '10100' + '11'
+test_instruction['fsgnj.s'] = '00100' + '00' + '00010' + '00001' + '000' + '00100' + '10100' + '11'
+test_instruction['fsgnjn.s'] = '00100' + '00' + '00010' + '00001' + '001' + '00100' + '10100' + '11'
+test_instruction['fsgnjx.s'] = '00100' + '00' + '00010' + '00001' + '010' + '00100' + '10100' + '11'
+test_instruction['fmin.s'] = '00101' + '00' + '00010' + '00001' + '000' + '00100' + '10100' + '11'
+test_instruction['fmax.s'] = '00101' + '00' + '00010' + '00001' + '001' + '00100' + '10100' + '11'
+test_instruction['fsqrt.s'] = '01011' + '00' + '00000' + '00001' + '011' + '00100' + '10100' + '11'
 
 class TestDecoder(unittest.TestCase):
+
+	def test_float_instructions(self):
+		instructions = ['fadd.s', 'fsub.s', 'fmul.s', 'fdiv.s', 'fsgnj.s', 'fsgnjn.s', 'fsgnjx.s', 'fmin.s', 'fmax.s', 'fsqrt.s']		
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rs2'] = '00010'
+			ground_truth['rd'] = '00100'
+			
+			if not instr in ['fsgnj.s', 'fsgnjn.s', 'fsgnjx.s', 'fmin.s', 'fmax.s']:
+				ground_truth['rm'] = '011'
+			if instr == 'fsqrt.s':
+				ground_truth['rs2'] = '00000'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])	
+
+	def test_atomic_d_instructions(self):
+		instructions = ['amoadd.d', 'amoxor.d', 'amoor.d', 'amoand.d', 'amomax.d', 'amomin.d', 'amomaxu.d', 'amominu.d', 'amoswap.d', 'lr.d', 'sc.d']		
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rs1'] = '00001'
+			ground_truth['rd'] = '00011'
+			
+			if instr != 'lr.d':
+				ground_truth['rs2'] = '00010'
+
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_atomic_instructions(self):
 		instructions = ['amoadd.w', 'amoxor.w', 'amoor.w', 'amoand.w', 'amomax.w', 'amomin.w', 'amomaxu.w', 'amominu.w', 'amoswap.w', 'lr.w', 'sc.w']		
