@@ -121,7 +121,44 @@ test_instruction['fmin.s'] = '00101' + '00' + '00010' + '00001' + '000' + '00100
 test_instruction['fmax.s'] = '00101' + '00' + '00010' + '00001' + '001' + '00100' + '10100' + '11'
 test_instruction['fsqrt.s'] = '01011' + '00' + '00000' + '00001' + '011' + '00100' + '10100' + '11'
 
+test_instruction['ecall'] = '000000000000' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['ebreak'] = '000000000001' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['uret'] = '000000000010' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['sret'] = '000100000010' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['hret'] = '001000000010' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['mret'] = '001100000010' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['sfence.vm'] = '000100000100' + '00001' + '000' + '000000' + '11100' + '11'
+test_instruction['mret'] = '001100000010' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['wfi'] = '000100000101' + '00000' + '000' + '000000' + '11100' + '11'
+
+test_instruction['csrrw'] = '000000000001' + '00001' + '001' + '00010' + '11100' + '11'
+test_instruction['csrrs'] = '000000000001' + '00001' + '010' + '00010' + '11100' + '11'
+test_instruction['csrrc'] = '000000000001' + '00001' + '011' + '00010' + '11100' + '11'
+test_instruction['csrrwi'] = '000000000001' + '00001' + '101' + '00010' + '11100' + '11'
+test_instruction['csrrsi'] = '000000000001' + '00001' + '110' + '00010' + '11100' + '11'
+test_instruction['csrrci'] = '000000000001' + '00001' + '111' + '00010' + '11100' + '11'
+
 class TestDecoder(unittest.TestCase):
+
+	def test_system_instructions(self):
+		instructions = ['ecall', 'ebreak', 'uret', 'sret', 'hret', 'mret', 'sfence.vm', 'wfi', 'csrrw', 'csrrs', 'csrrc', 'csrrwi', 'csrrsi', 'csrrci']		
+		
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			
+			if instr[:2] == 'cs':
+				ground_truth['rd'] = '00010'
+				ground_truth['rs1'] = '00001'
+				ground_truth['imm12'] = '000000000001'
+
+			elif instr == 'sfence.vm':
+				ground_truth['rs1'] = '00001'
+				
+			result = decoder.decode(test_instruction[instr], debug=True)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_float_instructions(self):
 		instructions = ['fadd.s', 'fsub.s', 'fmul.s', 'fdiv.s', 'fsgnj.s', 'fsgnjn.s', 'fsgnjx.s', 'fmin.s', 'fmax.s', 'fsqrt.s']		
