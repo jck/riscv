@@ -1,7 +1,7 @@
 import json
 
 from collections import defaultdict
-from instruction_table import instruction_table
+from .instruction_table import instruction_table
 
 def get_hex(binary_str):
 	"""
@@ -62,7 +62,7 @@ def print_dic(dictionary):
 	:param dictionary dictionary: Dictionary object of the decoded instruction
 	"""
 	json_dict = json.dumps(dictionary, sort_keys = False, indent = 4)
-	print json_dict
+	print(json_dict)
 
 def decode(instruction, debug = False):
 	"""	
