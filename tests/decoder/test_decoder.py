@@ -121,15 +121,15 @@ test_instruction['fmin.s'] = '00101' + '00' + '00010' + '00001' + '000' + '00100
 test_instruction['fmax.s'] = '00101' + '00' + '00010' + '00001' + '001' + '00100' + '10100' + '11'
 test_instruction['fsqrt.s'] = '01011' + '00' + '00000' + '00001' + '011' + '00100' + '10100' + '11'
 
-test_instruction['ecall'] = '000000000000' + '00000' + '000' + '000000' + '11100' + '11'
-test_instruction['ebreak'] = '000000000001' + '00000' + '000' + '000000' + '11100' + '11'
-test_instruction['uret'] = '000000000010' + '00000' + '000' + '000000' + '11100' + '11'
-test_instruction['sret'] = '000100000010' + '00000' + '000' + '000000' + '11100' + '11'
-test_instruction['hret'] = '001000000010' + '00000' + '000' + '000000' + '11100' + '11'
-test_instruction['mret'] = '001100000010' + '00000' + '000' + '000000' + '11100' + '11'
-test_instruction['sfence.vm'] = '000100000100' + '00001' + '000' + '000000' + '11100' + '11'
-test_instruction['mret'] = '001100000010' + '00000' + '000' + '000000' + '11100' + '11'
-test_instruction['wfi'] = '000100000101' + '00000' + '000' + '000000' + '11100' + '11'
+test_instruction['ecall'] = '000000000000' + '00000' + '000' + '00000' + '11100' + '11'
+test_instruction['ebreak'] = '000000000001' + '00000' + '000' + '00000' + '11100' + '11'
+test_instruction['uret'] = '000000000010' + '00000' + '000' + '00000' + '11100' + '11'
+test_instruction['sret'] = '000100000010' + '00000' + '000' + '00000' + '11100' + '11'
+test_instruction['hret'] = '001000000010' + '00000' + '000' + '00000' + '11100' + '11'
+test_instruction['mret'] = '001100000010' + '00000' + '000' + '00000' + '11100' + '11'
+test_instruction['sfence.vm'] = '000100000100' + '00001' + '000' + '00000' + '11100' + '11'
+test_instruction['mret'] = '001100000010' + '00000' + '000' + '00000' + '11100' + '11'
+test_instruction['wfi'] = '000100000101' + '00000' + '000' + '00000' + '11100' + '11'
 
 test_instruction['csrrw'] = '000000000001' + '00001' + '001' + '00010' + '11100' + '11'
 test_instruction['csrrs'] = '000000000001' + '00001' + '010' + '00010' + '11100' + '11'
@@ -155,7 +155,7 @@ class TestDecoder(unittest.TestCase):
 			elif instr == 'sfence.vm':
 				ground_truth['rs1'] = '00001'
 				
-			result = decoder.decode(test_instruction[instr], debug=True)
+			result = decoder.decode(test_instruction[instr], debug=False)
 
 			for key in ground_truth:
 				self.assertEqual(result[key],ground_truth[key])
