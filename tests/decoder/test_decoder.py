@@ -138,7 +138,50 @@ test_instruction['csrrwi'] = '000000000001' + '00001' + '101' + '00010' + '11100
 test_instruction['csrrsi'] = '000000000001' + '00001' + '110' + '00010' + '11100' + '11'
 test_instruction['csrrci'] = '000000000001' + '00001' + '111' + '00010' + '11100' + '11'
 
+test_instruction['fcvt.w.s'] = '11000' + '00' + '00000' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.wu.s'] = '11000' + '00' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.l.s'] = '11000' + '00' + '00010' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.lu.s'] = '11000' + '00' + '00011' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fmv.x.s'] = '11100' + '00' + '00000' + '00001' + '000' + '00011' + '10100' + '11'
+test_instruction['fclass.s'] = '11100' + '00' + '00000' + '00001' + '001' + '00011' + '10100' + '11'
+
+test_instruction['fcvt.w.d'] = '11000' + '01' + '00000' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.wu.d'] = '11000' + '01' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.l.d'] = '11000' + '01' + '00010' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.lu.d'] = '11000' + '01' + '00011' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fmv.x.d'] = '11100' + '01' + '00000' + '00001' + '000' + '00011' + '10100' + '11'
+test_instruction['fclass.d'] = '11100' + '01' + '00000' + '00001' + '001' + '00011' + '10100' + '11'
+
+test_instruction['fcvt.s.w'] = '11010' + '00' + '00000' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.s.ww'] = '11010' + '00' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.s.l'] = '11010' + '00' + '00010' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.s.lu'] = '11010' + '00' + '00011' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fmv.s.x'] = '11110' + '00' + '00000' + '00001' + '000' + '00011' + '10100' + '11'
+
+test_instruction['fcvt.d.w'] = '11010' + '01' + '00000' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.d.ww'] = '11010' + '01' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.d.l'] = '11010' + '01' + '00010' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.d.lu'] = '11010' + '01' + '00011' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fmv.s.x'] = '11110' + '01' + '00000' + '00001' + '000' + '00011' + '10100' + '11'
+
 class TestDecoder(unittest.TestCase):
+
+	def test_floatd_instructions(self):
+		instructions = ['fcvt.wu.d', 'fcvt.d.w', 'fmv.s.x', 'fcvt.s.ww', 'fmv.x.s', 'fcvt.s.l', 'fcvt.s.lu', 'fcvt.w.s', 'fcvt.l.s', 'fcvt.lu.s', 'fclass.s', 'fmv.x.d', 'fcvt.s.w', 'fcvt.d.lu', 'fcvt.d.ww', 'fcvt.wu.s', 'fclass.d', 'fcvt.lu.d', 'fcvt.l.d', 'fcvt.w.d', 'fcvt.d.l']
+
+		for instr in instructions:
+			ground_truth = defaultdict()
+			ground_truth['instr'] = instr		
+			ground_truth['rd'] = '00011'
+			ground_truth['rs1'] = '00001'
+			
+			if not instr in ['fmv.x.s', 'fmv.x.d', 'fclass.s', 'fclass.d', 'fmv.d.x', 'fmv.s.x']:
+				ground_truth['rm'] = '010'
+				
+			result = decoder.decode(test_instruction[instr], debug=False)
+
+			for key in ground_truth:
+				self.assertEqual(result[key],ground_truth[key])
 
 	def test_system_instructions(self):
 		instructions = ['ecall', 'ebreak', 'uret', 'sret', 'hret', 'mret', 'sfence.vm', 'wfi', 'csrrw', 'csrrs', 'csrrc', 'csrrwi', 'csrrsi', 'csrrci']		
