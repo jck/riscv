@@ -4,8 +4,10 @@ import unittest
 
 lib_path = os.path.abspath(os.path.join('..', '..', '..', 'riscv'))
 sys.path.append(lib_path)
-from riscv import decoder
 
+from riscv import decoder
+from collections import defaultdict
+from test_instructions import test_instruction
 
 
 class TestDecoder(unittest.TestCase):
