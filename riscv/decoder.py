@@ -511,7 +511,6 @@ def decode(instruction, debug = False):
 			if slice_12 == '260':
 				instruction_name = instruction_table[get_hex(family)][funct3][slice_12]
 				rs1 = instruction[-20:-15]
-				print slice_12, rs1
 				return get_output(instr=instruction_name, rs1=rs1, debug = debug)
 			else :
 				instruction_name = instruction_table[get_hex(family)][funct3][slice_12]
@@ -528,6 +527,3 @@ def decode(instruction, debug = False):
 	else:
 		print("Instruction does not match any known instruction")
 		print("Family :" + family)
-
-
-

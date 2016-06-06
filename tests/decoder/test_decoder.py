@@ -153,21 +153,21 @@ test_instruction['fmv.x.d'] = '11100' + '01' + '00000' + '00001' + '000' + '0001
 test_instruction['fclass.d'] = '11100' + '01' + '00000' + '00001' + '001' + '00011' + '10100' + '11'
 
 test_instruction['fcvt.s.w'] = '11010' + '00' + '00000' + '00001' + '010' + '00011' + '10100' + '11'
-test_instruction['fcvt.s.ww'] = '11010' + '00' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.s.wu'] = '11010' + '00' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
 test_instruction['fcvt.s.l'] = '11010' + '00' + '00010' + '00001' + '010' + '00011' + '10100' + '11'
 test_instruction['fcvt.s.lu'] = '11010' + '00' + '00011' + '00001' + '010' + '00011' + '10100' + '11'
 test_instruction['fmv.s.x'] = '11110' + '00' + '00000' + '00001' + '000' + '00011' + '10100' + '11'
 
 test_instruction['fcvt.d.w'] = '11010' + '01' + '00000' + '00001' + '010' + '00011' + '10100' + '11'
-test_instruction['fcvt.d.ww'] = '11010' + '01' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
+test_instruction['fcvt.d.wu'] = '11010' + '01' + '00001' + '00001' + '010' + '00011' + '10100' + '11'
 test_instruction['fcvt.d.l'] = '11010' + '01' + '00010' + '00001' + '010' + '00011' + '10100' + '11'
 test_instruction['fcvt.d.lu'] = '11010' + '01' + '00011' + '00001' + '010' + '00011' + '10100' + '11'
-test_instruction['fmv.s.x'] = '11110' + '01' + '00000' + '00001' + '000' + '00011' + '10100' + '11'
+test_instruction['fmv.d.x'] = '11110' + '01' + '00000' + '00001' + '000' + '00011' + '10100' + '11'
 
 class TestDecoder(unittest.TestCase):
 
 	def test_floatd_instructions(self):
-		instructions = ['fcvt.wu.d', 'fcvt.d.w', 'fmv.s.x', 'fcvt.s.ww', 'fmv.x.s', 'fcvt.s.l', 'fcvt.s.lu', 'fcvt.w.s', 'fcvt.l.s', 'fcvt.lu.s', 'fclass.s', 'fmv.x.d', 'fcvt.s.w', 'fcvt.d.lu', 'fcvt.d.ww', 'fcvt.wu.s', 'fclass.d', 'fcvt.lu.d', 'fcvt.l.d', 'fcvt.w.d', 'fcvt.d.l']
+		instructions = ['fcvt.wu.d', 'fcvt.d.w', 'fmv.s.x', 'fcvt.s.wu', 'fmv.x.s', 'fcvt.s.l', 'fcvt.s.lu', 'fcvt.w.s', 'fcvt.l.s', 'fcvt.lu.s', 'fclass.s', 'fmv.x.d', 'fcvt.s.w', 'fcvt.d.lu', 'fcvt.d.wu', 'fcvt.wu.s', 'fclass.d', 'fcvt.lu.d', 'fcvt.l.d', 'fcvt.w.d', 'fcvt.d.l']
 
 		for instr in instructions:
 			ground_truth = defaultdict()
