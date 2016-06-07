@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 
-lib_path = os.path.abspath(os.path.join('..','..'))
+lib_path = os.path.abspath(os.path.join('..','riscv'))
 sys.path.append(lib_path)
 
 from riscv import decoder
