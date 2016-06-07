@@ -1,7 +1,7 @@
 import json
 
 from collections import defaultdict
-from .instruction_table import instruction_table
+from instruction_table import instruction_table
 
 def get_hex(binary_str):
 	"""
