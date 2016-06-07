@@ -6,9 +6,11 @@ python:
 install:
   - pwd
   - pip install coveralls
+  - pip install nose
 
 script:
   - py.test
+  - nosetests
 
 after_success:
    - coveralls
