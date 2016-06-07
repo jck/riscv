@@ -7,4 +7,6 @@
 
 RISC-V implementation and tools.
 
+Available tools : 
 
+* Pure Python RISC-V 2.0 decoder 
