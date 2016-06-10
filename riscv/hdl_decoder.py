@@ -16,14 +16,19 @@ def get_arg_select(arg_list):
     for i in range(len(arg_list)):
         for j in range(len(argument_list)):
             if arg_list[i] == argument_list[j]:
-                arg_select_list[j] = '1'
-            elif arg_select_list[j] == '1':
-                pass
+                if arg_select_list[j] == '1':
+                    pass
+                else:
+                    arg_select_list[j] = '1'
+                
             else:
-                arg_select_list[j] = '0'
+                if arg_select_list[j] == '1':
+                    pass
+                else:
+                    arg_select_list[j] = '0'
             arg_select_string += arg_select_list[j]
 
-    return Signal(intbv(int(arg_select_string,2)))
+    return Signal(intbv(int(arg_select_string[-10:],2)))
 
 def get_arg(instruction, argument):
     """
@@ -297,12 +302,3 @@ def test_bench():
             print "Argument Select: " + bin(arg_select, width = 10)
 
     return output, stimulus
-
-#instruction_int = int('1' + '000000' + '00001' + '00010' + '000' + '0000' + '1' + '11000' + '11', 2)
-#instruction = Signal(intbv(instruction_int)) 
-#print len(bin(instruction[32:20]))
-# print bin(instruction[25:20]) + bin(instruction[20:15])
-# print get_arg_select(['rs1', 'shamtw'])
-
-sim = Simulation(test_bench())
-sim.run()
