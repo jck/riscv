@@ -2,3 +2,7 @@
 *.pyo
 __pycache__
 *.egg-info
+_build/
+*.eggs
+*.egg
+.cache/
