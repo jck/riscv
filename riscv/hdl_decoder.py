@@ -1,5 +1,3 @@
-from decoder import get_hex, get_int
-from instruction_table import instruction_table
 from myhdl import always_comb, intbv, Signal, Simulation, delay, bin
 
 def get_arg_select(arg_list):
@@ -11,6 +9,7 @@ def get_arg_select(arg_list):
     :param Signal arg_select: 10 bit active low argument select signal 
 	"""
 
+	arg_select_string = ''
 	argument_list = ['rs1', 'rs2', 'rd', 'rm', 'imm12lo', 'imm12hi', 'imm12', 'imm20', 'shamt', 'shamtw']
 	arg_select_list = ['0' for i in range(len(argument_list))]
 	
@@ -22,8 +21,8 @@ def get_arg_select(arg_list):
 				pass
 			else:
 				arg_select_list[j] = '0'
+			arg_select_string += arg_select_list[j]
 
-	arg_select_string = ''.join(arg_select_list)
 	return Signal(intbv(int(arg_select_string,2)))
 
 def get_arg(instruction, argument):
@@ -35,7 +34,7 @@ def get_arg(instruction, argument):
 	:param str argument_name: the name of the argument to be extracted
 	"""
 	if argument == 'family_code':
-		return get_hex(instruction[7:2])
+		return bin(instruction[7:2],width=5)
 	elif argument == 'rs1':
 		return instruction[20:15]
 	elif argument == 'rs2':
@@ -46,6 +45,8 @@ def get_arg(instruction, argument):
 		return intbv(int(bin(instruction[27:25],width=2) + bin(instruction[12:8],width=4) ,2))
 	elif argument == 'instruction_id':
 		return instruction[15:12]
+	else:
+		pass 
 
 
 def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm12, imm20, shamt, shamtw):
@@ -69,19 +70,29 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
     """
     @always_comb
     def decoder_output():
-        instruction_family = get_arg(instruction, 'family_code')
+        # instruction_family = get_arg(instruction, 'family_code')
+        instruction_family = '11011'
         
-        if instruction_family == '0x1b':
+        if instruction_family == '11011':
         		
-        	instruction_id = get_arg(instruction, 'instruction_id')
+        	#instruction_id = get_arg(instruction, 'instruction_id')
 
         	rs1.next = get_arg(instruction, 'rs1')
         	rs2.next = get_arg(instruction, 'rs2')
         	imm12lo.next = get_arg(instruction, 'imm12lo')
         	imm12hi.next = get_arg(instruction, 'imm12hi')
+        	imm12.next = intbv(0)
+        	imm20.next = intbv(0)
+        	shamt.next = intbv(0)
+        	shamtw.next = intbv(0)
+        	rd.next = intbv(0)
+        	rm.next = intbv(0)
 
         	arg_list = ['rs1', 'rs2', 'imm12lo', 'imm12hi']
         	arg_select.next = get_arg_select(arg_list)
+
+        else:
+        	pass
 
         return decoder_output
 
@@ -105,8 +116,8 @@ def test_bench():
 
 	@instance
 	def stimulus():
-		for i in range(instruction_table[:5]):
-			instruction.next = intbv(int(instruction_table[i],2))
+		for i in range(5):
+			instruction.next = instruction
 			yield delay(10)
 			print "Argument Select: " + bin(arg_select, width = 10)
 
