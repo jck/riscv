@@ -304,5 +304,5 @@ def test_bench():
 # print bin(instruction[25:20]) + bin(instruction[20:15])
 # print get_arg_select(['rs1', 'shamtw'])
 
-sim = Simulation(test_bench)
+sim = Simulation(test_bench())
 sim.run()
