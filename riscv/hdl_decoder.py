@@ -256,7 +256,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
             
-            if funct3 == 0:
+            if get_arg(instruction, 'funct3') == 0:
                 rd.next = intbv(0)
                 arg_list = ['imm12']
                 arg_select.next = get_arg_select(arg_list)
