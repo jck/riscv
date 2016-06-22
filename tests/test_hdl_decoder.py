@@ -63,6 +63,22 @@ def test_bench():
             else:
                 assert(bin(opcode, width = 7) == '0010111')
 
+        # Test Jump Instructions 
+        jump_instr = ['jalr', 'jal']
+        for i in range(len(jump_instr)):
+            instruction.next = intbv(int(test_instruction[jump_instr[i]],2))
+            yield delay(10)
+            assert(bin(rd, width = 5) == '00001')
+            if i == 0:
+                assert(bin(imm12, width = 12) == '000000000001')
+                assert(bin(rs1, width = 5) == '00001')
+                assert(bin(arg_select, width = 10) == '1010001000')
+                assert(bin(opcode, width = 7) == '1100111')
+            else:
+                assert(bin(imm20, width = 20) == '10001100010000000001')
+                assert(bin(arg_select, width = 10) == '0010000100')
+                assert(bin(opcode, width = 7) == '1101111')
+
     return output, stimulus
 
 sim = Simulation(test_bench())
