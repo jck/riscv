@@ -33,21 +33,35 @@ def test_bench():
 
     @instance
     def stimulus():
+        
+        # Test Branch Instructions
         branch_instr = ['beq','bne','blt','bge','bltu','bgeu']
         for i in range(len(branch_instr)):
             instruction.next = intbv(int(test_instruction[branch_instr[i]],2))
             yield delay(10)
-            assert(bin(opcode, width = 7) == '1100011')
-            assert(bin(arg_select, width = 10) == '1100110000')
             assert(bin(rs1, width = 5) == '00010')
             assert(bin(rs2, width = 5) == '00001')
             assert(bin(imm12lo, width = 6) == '110000')
             assert(bin(imm12hi, width = 6) == '000000')
+            assert(bin(opcode, width = 7) == '1100011')
+            assert(bin(arg_select, width = 10) == '1100110000')
             if i < 2:
                 assert(bin(funct3, width = 3) == bin(i, width = 3))
             else:
                 assert(bin(funct3, width = 3) == bin(i+2, width = 3))
-                
+        
+        # Test LUI and AUIPC Instructions
+        lui_auipc_instr = ['lui', 'auipc']
+        for i in range(len(lui_auipc_instr)):
+            instruction.next = intbv(int(test_instruction[lui_auipc_instr[i]],2))
+            yield delay(10)
+            assert(bin(rd, width = 5) == '00001')
+            assert(bin(arg_select, width = 10) == '0010000100')
+            assert(bin(imm20, width = 20) == '00000000000000000001')
+            if i == 0:
+                assert(bin(opcode, width = 7) == '0110111')
+            else:
+                assert(bin(opcode, width = 7) == '0010111')
 
     return output, stimulus
 
