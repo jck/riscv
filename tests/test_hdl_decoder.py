@@ -7,10 +7,11 @@ lib_path = os.path.abspath(os.path.join('..','riscv'))
 sys.path.append(lib_path)
 
 from riscv.hdl_decoder import *
+from tests.test_instructions import test_instruction
+
 
 def test_bench():
-    instruction_int = int('1' + '000000' + '00001' + '00010' + '000' + '0000' + '1' + '11000' + '11', 2)
-    instruction = Signal(intbv(instruction_int))
+    instruction = Signal(intbv(0))
 
     arg_select = Signal(intbv(int('0000000000', 2)))
     opcode = Signal(intbv(int('0000000', 2)))
@@ -32,10 +33,21 @@ def test_bench():
 
     @instance
     def stimulus():
-        for i in range(5):
-            instruction.next = instruction
+        branch_instr = ['beq','bne','blt','bge','bltu','bgeu']
+        for i in range(len(branch_instr)):
+            instruction.next = intbv(int(test_instruction[branch_instr[i]],2))
             yield delay(10)
-            print "Argument Select: " + bin(arg_select, width = 10)
+            assert(bin(opcode, width = 7) == '1100011')
+            assert(bin(arg_select, width = 10) == '1100110000')
+            assert(bin(rs1, width = 5) == '00010')
+            assert(bin(rs2, width = 5) == '00001')
+            assert(bin(imm12lo, width = 6) == '110000')
+            assert(bin(imm12hi, width = 6) == '000000')
+            if i < 2:
+                assert(bin(funct3, width = 3) == bin(i, width = 3))
+            else:
+                assert(bin(funct3, width = 3) == bin(i+2, width = 3))
+                
 
     return output, stimulus
 

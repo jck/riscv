@@ -41,7 +41,7 @@ def get_arg(instruction, argument):
     if argument == 'family_code':
         return instruction[7:2]
     elif argument == 'opcode':
-        return instruction[7:0]
+        return instruction[7:]
     elif argument == 'funct3':
         return instruction[15:12]
     elif argument == 'funct7':
@@ -96,11 +96,11 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
     @always_comb
     def decoder_output():
         instruction_family = bin(get_arg(instruction, 'family_code'),width=5)
+        opcode.next = get_arg(instruction, 'opcode')
         
         # Branch Instructions
         if instruction_family == '11000':
                 
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = get_arg(instruction, 'funct3')
             funct7.next = intbv(0)
 
@@ -121,7 +121,6 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
         # Jump Instructions
         elif instruction_family == '11001':
             
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = intbv(0)
             funct7.next = intbv(0)
 
@@ -141,7 +140,6 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
 
         elif instruction_family == '11011':
             
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = intbv(0)
             funct7.next = intbv(0)
 
@@ -162,7 +160,6 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
         # LUI and AUIPC
         elif instruction_family == '01101' or instruction_family == '00101':
             
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = intbv(0)
             funct7.next = intbv(0)
 
@@ -182,7 +179,6 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
 
         # Addition and Logical immediate Instructions 
         elif instruction_family == '00100':
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = get_arg(instruction, 'funct3')
 
             rs1.next = get_arg(instruction,'rs1')
@@ -210,7 +206,6 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
                     
         # Addition and Logical Instructions
         elif instruction_family == '01100':
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = intbv(0)
             funct7.next = intbv(0)
             rs1.next = get_arg(instruction,'rs1')
@@ -229,7 +224,6 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
 
         # FENCE and FENCE.I instructions
         elif instruction_family == '00011':
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = get_arg(instruction, 'funct3')
             funct7.next = intbv(0)
             rs1.next = intbv(0)
@@ -248,7 +242,6 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
 
         # System Instructions
         elif instruction_family == '11100':
-            opcode.next = get_arg(instruction, 'opcode')
             funct3.next = get_arg(instruction, 'funct3')
             funct7.next = intbv(0)
             rs1.next = intbv(0)
