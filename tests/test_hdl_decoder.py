@@ -111,6 +111,21 @@ def test_bench():
             else :
                 assert(bin(funct3, width = 3) == bin(i, width = 3))
 
+        # Test Load Instructions
+        load_instr = ['lb', 'lh', 'lw', 'lbu', 'lhu']
+        for i in range(len(load_instr)):
+            instruction.next = intbv(int(test_instruction[load_instr[i]],2))
+            yield delay(10)
+            assert(bin(rd, width = 5) == '00010')
+            assert(bin(rs1, width = 5) == '00001')
+            assert(bin(imm12, width = 12) == '000000000001')
+            assert(bin(opcode, width = 7) == '0000011')         
+            assert(bin(arg_select, width = 10) == '1010001000')
+            if i <= 2:
+                assert(bin(funct3, width = 3) == bin(i, width = 3))
+            else:
+                assert(bin(funct3, width = 3) == bin(i+1, width = 3))
+
     return output, stimulus
 
 sim = Simulation(test_bench())

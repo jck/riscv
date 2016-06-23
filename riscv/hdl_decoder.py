@@ -60,6 +60,8 @@ def get_arg(instruction, argument):
         return instruction[12:7]
     elif argument == 'imm12':
         return instruction[31:20]
+    elif argument == 'imm12_sb':
+        return intbv(int(bin(instruction[32:25],width=7) + bin(instruction[13:8],width=5) ,2))
     elif argument == 'imm20':
         return intbv(int( bin(instruction[31]) + bin(instruction[20:12],width=8) + bin(instruction[20]) + bin(instruction[31:21], width=10) ,2))
     elif argument == 'imm20_pc':
@@ -240,6 +242,46 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             rm.next = intbv(0)
 
             arg_list = []
+            arg_select.next = get_arg_select(arg_list)
+
+        # Load Instructions
+        elif instruction_family == '00000':
+            
+            funct3.next = get_arg(instruction, 'funct3')
+            funct7.next = intbv(0)
+
+            rs1.next = get_arg(instruction, 'rs1')
+            rd.next = get_arg(instruction,'rd')
+            imm12.next = get_arg(instruction,'imm12')
+            rs2.next = intbv(0)
+            imm12lo.next = intbv(0)
+            imm12hi.next = intbv(0)
+            imm20.next = intbv(0)
+            shamt.next = intbv(0)
+            shamtw.next = intbv(0)
+            rm.next = intbv(0)
+
+            arg_list = ['rs1', 'rd', 'imm12']
+            arg_select.next = get_arg_select(arg_list)
+
+        # Store Instructions
+        elif instruction_family == '01000':
+            
+            funct3.next = get_arg(instruction, 'funct3')
+            funct7.next = intbv(0)
+
+            rs1.next = get_arg(instruction, 'rs1')
+            rs2.next = get_arg(instruction,'rs2')
+            imm12.next = get_arg(instruction,'imm12_sb')
+            rd.next = intbv(0)
+            imm12lo.next = intbv(0)
+            imm12hi.next = intbv(0)
+            imm20.next = intbv(0)
+            shamt.next = intbv(0)
+            shamtw.next = intbv(0)
+            rm.next = intbv(0)
+
+            arg_list = ['rs1', 'rd', 'imm12']
             arg_select.next = get_arg_select(arg_list)
 
         # System Instructions
