@@ -80,9 +80,9 @@ def test_bench():
                 assert(bin(opcode, width = 7) == '1101111')
 
         # Test Addition and Logical immediate Instructions 
-        arith_logic_instr = ['addi', 'slli', 'slti', 'sltiu', 'xori', 'srli', 'srai', 'ori', 'andi']
-        for i in range(len(arith_logic_instr)):
-            instruction.next = intbv(int(test_instruction[arith_logic_instr[i]],2))
+        arith_logic_imm_instr = ['addi', 'slli', 'slti', 'sltiu', 'xori', 'srli', 'srai', 'ori', 'andi']
+        for i in range(len(arith_logic_imm_instr)):
+            instruction.next = intbv(int(test_instruction[arith_logic_imm_instr[i]],2))
             yield delay(10)
             assert(bin(rd, width = 5) == '00001')
             assert(bin(rs1, width = 5) == '00001')
@@ -93,6 +93,23 @@ def test_bench():
             else:
                 assert(bin(imm12, width = 12) == '000000000001')
                 assert(bin(arg_select, width = 10) == '1010001000')
+
+        # Test Addition and Logical Reg to Reg Instructions 
+        arith_logic_r2r_instr = ['add', 'sll', 'slt', 'sltu', 'xor', 'srl', 'or', 'and', 'sub', 'sra']
+        for i in range(len(arith_logic_r2r_instr)):
+            instruction.next = intbv(int(test_instruction[arith_logic_r2r_instr[i]],2))
+            yield delay(10)
+            assert(bin(rd, width = 5) == '00011')
+            assert(bin(rs1, width = 5) == '00001')
+            assert(bin(rs2, width = 5) == '00010')
+            assert(bin(opcode, width = 7) == '0110011')         
+            assert(bin(arg_select, width = 10) == '1110000000')
+            if i == 8:
+                assert(bin(funct3, width = 3) == bin(0, width = 3))
+            elif i == 9:
+                assert(bin(funct3, width = 3) == bin(5, width = 3))
+            else :
+                assert(bin(funct3, width = 3) == bin(i, width = 3))
 
     return output, stimulus
 

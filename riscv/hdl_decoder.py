@@ -208,7 +208,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
                     
         # Addition and Logical Instructions
         elif instruction_family == '01100':
-            funct3.next = intbv(0)
+            funct3.next = get_arg(instruction,'funct3')
             funct7.next = intbv(0)
             rs1.next = get_arg(instruction,'rs1')
             rs2.next = get_arg(instruction,'rs2')
