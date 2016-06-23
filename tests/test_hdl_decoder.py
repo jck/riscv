@@ -79,6 +79,21 @@ def test_bench():
                 assert(bin(arg_select, width = 10) == '0010000100')
                 assert(bin(opcode, width = 7) == '1101111')
 
+        # Test Addition and Logical immediate Instructions 
+        arith_logic_instr = ['addi', 'slli', 'slti', 'sltiu', 'xori', 'srli', 'srai', 'ori', 'andi']
+        for i in range(len(arith_logic_instr)):
+            instruction.next = intbv(int(test_instruction[arith_logic_instr[i]],2))
+            yield delay(10)
+            assert(bin(rd, width = 5) == '00001')
+            assert(bin(rs1, width = 5) == '00001')
+            assert(bin(opcode, width = 7) == '0010011')         
+            if i in [1,5,6]:
+                assert(bin(arg_select, width = 10) == '1010000010')
+                assert(bin(shamt, width = 5) == '00001')
+            else:
+                assert(bin(imm12, width = 12) == '000000000001')
+                assert(bin(arg_select, width = 10) == '1010001000')
+
     return output, stimulus
 
 sim = Simulation(test_bench())

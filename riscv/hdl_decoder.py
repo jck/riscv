@@ -66,6 +66,8 @@ def get_arg(instruction, argument):
         return instruction[31:12]
     elif argument == 'shamtw':
         return instruction[25:20]
+    elif argument == 'shamt':
+        return instruction[25:20]
     else:
         return None 
 
