@@ -6,7 +6,7 @@ sys.path.append(lib_path)
 
 from riscv import decoder
 from collections import defaultdict
-from test_instructions import test_instruction
+from tests.test_instructions import test_instruction
 
 
 def test_floatd_instructions():
