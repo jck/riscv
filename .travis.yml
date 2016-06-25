@@ -6,6 +6,7 @@ python:
 install:
   - pwd
   - pip install coveralls
+  - pip install myhdl
 
 script:
   - py.test
