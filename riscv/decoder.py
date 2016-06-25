@@ -1,7 +1,7 @@
 import json
 
 from collections import defaultdict
-from .instruction_table import instruction_table
+from instruction_table import instruction_table
 
 def get_hex(binary_str):
 	"""
@@ -46,10 +46,10 @@ def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12h
 	output_dict['instr'] = instr
 
 	for i in range(len(arg_list)):
-		if arg_list[i] != None:
+		if arg_list[i] is not None:
 			output_dict[arg_keys[i]] = arg_list[i]
 
-	if debug == True:
+	if debug is True:
 		print_dic(output_dict)
 
 	return output_dict
@@ -303,7 +303,7 @@ def decode(instruction, debug = False):
 		rs3 = instruction[:5]
 		rm = instruction[-15:-12]
 
-		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rs3=rs3, rm=rm, debug = debug)
+		return get_output(instr=instruction_name ,rs1=rs1, rs2=rs2, rm=rm, debug = debug)
 
 	elif get_hex(family) == '0x1c':
 		funct3 = get_int(instruction[-15:-12])

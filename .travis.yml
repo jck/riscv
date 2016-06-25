@@ -7,11 +7,10 @@ python:
 install:
   - pwd
   - pip install coveralls
-  - pip install nose
+  - pip install myhdl
 
 script:
   - py.test
-  - nosetests
 
 after_success:
    - coveralls
