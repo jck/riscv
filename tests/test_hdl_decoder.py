@@ -126,6 +126,37 @@ def test_bench():
             else:
                 assert(bin(funct3, width = 3) == bin(i+1, width = 3))
 
+        # Test Store Instructions
+        store_instr = ['sb', 'sh', 'sw']
+        for i in range(len(store_instr)):
+            instruction.next = intbv(int(test_instruction[store_instr[i]],2))
+            yield delay(10)
+            assert(bin(rs1, width = 5) == '00010')
+            assert(bin(rs2, width = 5) == '00001')
+            assert(bin(imm12, width = 12) == '000001000001')
+            assert(bin(opcode, width = 7) == '0100011')         
+            assert(bin(arg_select, width = 10) == '1100001000')
+            assert(bin(funct3, width = 3) == bin(i, width = 3))
+        
+        # Test System Instructions
+        sys_instr = ['ecall', 'ebreak', 'rdcycle', 'rdcycleh', 'rdtime', 'rdtimeh', 'rdinstret', 'rdinstreth']
+        for i in range(len(sys_instr)):
+            instruction.next = intbv(int(test_instruction[sys_instr[i]],2))
+            yield delay(10)
+            assert(bin(opcode, width = 7) == '1110011')         
+            if i in [0,1]:
+                assert(bin(arg_select, width = 10) == '0000001000')
+                assert(bin(funct3, width = 3) == bin(0, width = 3))
+                assert(bin(imm12, width = 12) == bin(i, width = 12))
+            else:
+                assert(bin(arg_select, width = 10) == '0010001000')
+                assert(bin(funct3, width = 3) == bin(2, width = 3))
+                assert(bin(rd, width = 5) == '00001')
+                sys_imms = ['110000000000', '110010000000',\
+                            '110000000001', '110010000001',\
+                            '110000000010', '110010000010']
+                assert(bin(imm12, width = 12) == sys_imms[i-2])
+
     return output, stimulus
 
 sim = Simulation(test_bench())

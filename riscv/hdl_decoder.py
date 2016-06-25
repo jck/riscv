@@ -59,9 +59,9 @@ def get_arg(instruction, argument):
     elif argument == 'rd':
         return instruction[12:7]
     elif argument == 'imm12':
-        return instruction[31:20]
+        return instruction[32:20]
     elif argument == 'imm12_sb':
-        return intbv(int(bin(instruction[32:25],width=7) + bin(instruction[13:8],width=5) ,2))
+        return intbv(int(bin(instruction[32:25],width=7) + bin(instruction[12:7],width=5) ,2))
     elif argument == 'imm20':
         return intbv(int( bin(instruction[31]) + bin(instruction[20:12],width=8) + bin(instruction[20]) + bin(instruction[31:21], width=10) ,2))
     elif argument == 'imm20_pc':
@@ -281,7 +281,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rs1', 'rd', 'imm12']
+            arg_list = ['rs1', 'rs2', 'imm12']
             arg_select.next = get_arg_select(arg_list)
 
         # System Instructions
