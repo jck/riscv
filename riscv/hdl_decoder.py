@@ -1,4 +1,4 @@
-from myhdl import always_comb, intbv, Signal, Simulation, delay, bin, instance
+from myhdl import always_comb, intbv, Signal, Simulation, delay, bin, instance, block
     
 def get_arg_select(arg_list):
     """
@@ -51,7 +51,7 @@ def get_arg(instruction, argument):
     elif argument == 'rs2':
         return instruction[25:20]
     elif argument == 'imm12lo':
-        return intbv(int(bin(instruction[31]) + bin(instruction[7]) + bin(instruction[31:27], width=4),2))
+        return intbv(int(bin(instruction[32]) + bin(instruction[7]) + bin(instruction[31:27], width=4),2))
     elif argument == 'imm12hi':
         return intbv(int(bin(instruction[27:25],width=2) + bin(instruction[12:8],width=4) ,2))
     elif argument == 'instruction_id':
@@ -73,7 +73,7 @@ def get_arg(instruction, argument):
     else:
         return None 
 
-
+@block
 def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm12, imm20, shamt, shamtw, opcode, funct3, funct7):
     """
     HDL decoder module to decode instructions from
@@ -119,7 +119,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             rd.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rs1', 'rs2', 'imm12lo', 'imm12hi']
+            arg_list = ('rs1', 'rs2', 'imm12lo', 'imm12hi')
             arg_select.next = get_arg_select(arg_list)
 
         # Jump Instructions

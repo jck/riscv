@@ -41,7 +41,7 @@ def test_bench():
             yield delay(10)
             assert(bin(rs1, width = 5) == '00010')
             assert(bin(rs2, width = 5) == '00001')
-            assert(bin(imm12lo, width = 6) == '110000')
+            assert(bin(imm12lo, width = 6) == '010000')
             assert(bin(imm12hi, width = 6) == '000000')
             assert(bin(opcode, width = 7) == '1100011')
             assert(bin(arg_select, width = 10) == '1100110000')
