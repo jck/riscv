@@ -1,4 +1,4 @@
-from myhdl import always_comb, intbv, Signal, Simulation, delay, bin, instance, block
+from myhdl import always_comb, intbv, Signal, Simulation, delay, bin, instance, block, concat
     
 def get_arg_select(arg_list):
     """
@@ -51,9 +51,9 @@ def get_arg(instruction, argument):
     elif argument == 'rs2':
         return instruction[25:20]
     elif argument == 'imm12lo':
-        return intbv(int(bin(instruction[32]) + bin(instruction[7]) + bin(instruction[31:27], width=4),2))
+        return concat(instruction[32], instruction[7], instruction[31:27])
     elif argument == 'imm12hi':
-        return intbv(int(bin(instruction[27:25],width=2) + bin(instruction[12:8],width=4) ,2))
+        return concat(instruction[27:25], instruction[12:8])
     elif argument == 'instruction_id':
         return instruction[15:12]
     elif argument == 'rd':
@@ -61,9 +61,9 @@ def get_arg(instruction, argument):
     elif argument == 'imm12':
         return instruction[32:20]
     elif argument == 'imm12_sb':
-        return intbv(int(bin(instruction[32:25],width=7) + bin(instruction[12:7],width=5) ,2))
+        return concat(instruction[32:25], instruction[12:7])
     elif argument == 'imm20':
-        return intbv(int( bin(instruction[31]) + bin(instruction[20:12],width=8) + bin(instruction[20]) + bin(instruction[31:21], width=10) ,2))
+        return concat(instruction[31], instruction[20:12], instruction[20], instruction[31:21])
     elif argument == 'imm20_pc':
         return instruction[31:12]
     elif argument == 'shamtw':
@@ -139,7 +139,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rs1', 'rd', 'imm12']
+            arg_list = ('rs1', 'rd', 'imm12')
             arg_select.next = get_arg_select(arg_list)
 
         elif instruction_family == '11011':
@@ -158,7 +158,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rd', 'imm20']
+            arg_list = ('rd', 'imm20')
             arg_select.next = get_arg_select(arg_list)
 
         # LUI and AUIPC
@@ -178,7 +178,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rd', 'imm20']
+            arg_list = ('rd', 'imm20')
             arg_select.next = get_arg_select(arg_list)
 
         # Addition and Logical immediate Instructions 
@@ -195,17 +195,17 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            if get_arg(instruction, 'funct3') in [1,5]:
+            if get_arg(instruction, 'funct3') in (1,5):
                 shamt.next = get_arg(instruction,'shamt')
                 funct7.next = get_arg(instruction, 'funct7')
                 imm12.next = intbv(0)
-                arg_list = ['rs1', 'rd', 'shamt']
+                arg_list = ('rs1', 'rd', 'shamt')
                 arg_select.next = get_arg_select(arg_list)
             else :
                 shamt.next = intbv(0)
                 funct7.next = intbv(0)
                 imm12.next = get_arg(instruction,'imm12')
-                arg_list = ['rs1', 'rd', 'imm12']
+                arg_list = ('rs1', 'rd', 'imm12')
                 arg_select.next = get_arg_select(arg_list)
                     
         # Addition and Logical Instructions
@@ -223,7 +223,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rd', 'rs1', 'rs2']
+            arg_list = ('rd', 'rs1', 'rs2')
             arg_select.next = get_arg_select(arg_list)                  
 
         # FENCE and FENCE.I instructions
@@ -241,7 +241,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = []
+            arg_list = ()
             arg_select.next = get_arg_select(arg_list)
 
         # Load Instructions
@@ -261,7 +261,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rs1', 'rd', 'imm12']
+            arg_list = ('rs1', 'rd', 'imm12')
             arg_select.next = get_arg_select(arg_list)
 
         # Store Instructions
@@ -281,7 +281,7 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ['rs1', 'rs2', 'imm12']
+            arg_list = ('rs1', 'rs2', 'imm12')
             arg_select.next = get_arg_select(arg_list)
 
         # System Instructions
@@ -300,11 +300,11 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             
             if get_arg(instruction, 'funct3') == 0:
                 rd.next = intbv(0)
-                arg_list = ['imm12']
+                arg_list = ('imm12',)
                 arg_select.next = get_arg_select(arg_list)
             else:
                 rd.next = get_arg(instruction, 'rd')
-                arg_list = ['rd', 'imm12']
+                arg_list = ('rd', 'imm12')
                 arg_select.next = get_arg_select(arg_list)
 
     return decoder_output
