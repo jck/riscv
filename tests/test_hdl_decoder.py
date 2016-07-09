@@ -1,7 +1,7 @@
 import os
 import sys
 
-from myhdl import Simulation, Signal, intbv
+from myhdl import Simulation, Signal, intbv, instance, delay
 
 lib_path = os.path.abspath(os.path.join('..','riscv'))
 sys.path.append(lib_path)
@@ -13,23 +13,24 @@ from tests.test_instructions import test_instruction
 def test_bench():
     instruction = Signal(intbv(0))
 
-    arg_select = Signal(intbv(int('0000000000', 2)))
-    opcode = Signal(intbv(int('0000000', 2)))
-    funct3 = Signal(intbv(int('000', 2)))
-    funct7 = Signal(intbv(int('0000000', 2)))
+    arg_select = Signal(intbv(int('0000000000', 2))[10:])
+    opcode = Signal(intbv(int('0000000', 2))[7:])
+    funct3 = Signal(intbv(int('000', 2))[3:])
+    funct7 = Signal(intbv(int('0000000', 2))[7:])
 
-    rd = Signal(intbv(int('00000', 2)))
-    rm = Signal(intbv(int('00000', 2)))
-    rs1 = Signal(intbv(int('00000', 2)))
-    rs2 = Signal(intbv(int('00000', 2)))
-    shamt = Signal(intbv(int('00000', 2)))
-    shamtw = Signal(intbv(int('00000', 2)))
-    imm12lo = Signal(intbv(int('000000', 2)))
-    imm12hi = Signal(intbv(int('000000', 2)))
-    imm12 = Signal(intbv(int('000000000000', 2)))
-    imm20 = Signal(intbv(int('00000000000000000000', 2)))
+    rd = Signal(intbv(int('00000', 2))[5:])
+    rm = Signal(intbv(int('00000', 2))[5:])
+    rs1 = Signal(intbv(int('00000', 2))[5:])
+    rs2 = Signal(intbv(int('00000', 2))[5:])
+    shamt = Signal(intbv(int('00000', 2))[5:])
+    shamtw = Signal(intbv(int('00000', 2))[5:])
+    imm12lo = Signal(intbv(int('000000', 2))[6:])
+    imm12hi = Signal(intbv(int('000000', 2))[6:])
+    imm12 = Signal(intbv(int('000000000000', 2))[12:])
+    imm20 = Signal(intbv(int('00000000000000000000', 2))[20:])
 
     output = hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm12, imm20, shamt, shamtw, opcode, funct3, funct7)
+    output.convert(hdl='Verilog')
 
     @instance
     def stimulus():
@@ -37,7 +38,7 @@ def test_bench():
         # Test Branch Instructions
         branch_instr = ['beq','bne','blt','bge','bltu','bgeu']
         for i in range(len(branch_instr)):
-            instruction.next = intbv(int(test_instruction[branch_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[branch_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(rs1, width = 5) == '00010')
             assert(bin(rs2, width = 5) == '00001')
@@ -53,7 +54,7 @@ def test_bench():
         # Test LUI and AUIPC Instructions
         lui_auipc_instr = ['lui', 'auipc']
         for i in range(len(lui_auipc_instr)):
-            instruction.next = intbv(int(test_instruction[lui_auipc_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[lui_auipc_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(rd, width = 5) == '00001')
             assert(bin(arg_select, width = 10) == '0010000100')
@@ -66,7 +67,7 @@ def test_bench():
         # Test Jump Instructions 
         jump_instr = ['jalr', 'jal']
         for i in range(len(jump_instr)):
-            instruction.next = intbv(int(test_instruction[jump_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[jump_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(rd, width = 5) == '00001')
             if i == 0:
@@ -82,7 +83,7 @@ def test_bench():
         # Test Addition and Logical immediate Instructions 
         arith_logic_imm_instr = ['addi', 'slli', 'slti', 'sltiu', 'xori', 'srli', 'srai', 'ori', 'andi']
         for i in range(len(arith_logic_imm_instr)):
-            instruction.next = intbv(int(test_instruction[arith_logic_imm_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[arith_logic_imm_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(rd, width = 5) == '00001')
             assert(bin(rs1, width = 5) == '00001')
@@ -97,7 +98,7 @@ def test_bench():
         # Test Addition and Logical Reg to Reg Instructions 
         arith_logic_r2r_instr = ['add', 'sll', 'slt', 'sltu', 'xor', 'srl', 'or', 'and', 'sub', 'sra']
         for i in range(len(arith_logic_r2r_instr)):
-            instruction.next = intbv(int(test_instruction[arith_logic_r2r_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[arith_logic_r2r_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(rd, width = 5) == '00011')
             assert(bin(rs1, width = 5) == '00001')
@@ -114,7 +115,7 @@ def test_bench():
         # Test Load Instructions
         load_instr = ['lb', 'lh', 'lw', 'lbu', 'lhu']
         for i in range(len(load_instr)):
-            instruction.next = intbv(int(test_instruction[load_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[load_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(rd, width = 5) == '00010')
             assert(bin(rs1, width = 5) == '00001')
@@ -129,7 +130,7 @@ def test_bench():
         # Test Store Instructions
         store_instr = ['sb', 'sh', 'sw']
         for i in range(len(store_instr)):
-            instruction.next = intbv(int(test_instruction[store_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[store_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(rs1, width = 5) == '00010')
             assert(bin(rs2, width = 5) == '00001')
@@ -141,7 +142,7 @@ def test_bench():
         # Test System Instructions
         sys_instr = ['ecall', 'ebreak', 'rdcycle', 'rdcycleh', 'rdtime', 'rdtimeh', 'rdinstret', 'rdinstreth']
         for i in range(len(sys_instr)):
-            instruction.next = intbv(int(test_instruction[sys_instr[i]],2))
+            instruction.next = intbv(int(test_instruction[sys_instr[i]],2))[32:]
             yield delay(10)
             assert(bin(opcode, width = 7) == '1110011')         
             if i in [0,1]:
