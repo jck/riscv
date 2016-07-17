@@ -1,4 +1,4 @@
-from myhdl import always_comb, intbv, Signal, bin, block, concat, enum
+from myhdl import always_comb, intbv, Signal, block, concat, enum
 
 itypes = enum('family_code', 'opcode', 'funct3', 'funct7', 'rs1',
               'rs2', 'imm12lo', 'imm12hi', 'instruction_id', 'rd', 'rm',
@@ -47,6 +47,7 @@ def get_arg(instruction, itype):
     :param Signal instruction: Input instruction
     :param str argument_name: the name of the argument to be extracted
     """
+
     if itype == itypes.family_code:
         return instruction[7:2]
     elif itype == itypes.opcode:
@@ -80,17 +81,19 @@ def get_arg(instruction, itype):
     elif itype == itypes.shamt:
         return instruction[25:20]
     else:
-        return None 
+        return None
+
 
 @block
-def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm12, imm20, shamt, shamtw, opcode, funct3, funct7):
+def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm12, imm20, shamt, shamtw, opcode,
+                funct3, funct7):
     """
     HDL decoder module to decode instructions from
-    RISC-V ISA. 
+    RISC-V ISA.
 
     :param Signal instruction: Instruction to be decoded
-    
-    :param Signal arg_select: 10 bit active low argument select signal 
+
+    :param Signal arg_select: 10 bit active low argument select signal
     :param Signal rs1: Source register 1
     :param Signal rs2: Source register 2
     :param Signal rd: Destination register
@@ -104,23 +107,23 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
     :param Signal opcode: Instruction opcode
     :param Signal funct3: instruction funct3
     :param Signal funct7: instruction funct7
-    """ 
+    """
 
     @always_comb
     def decoder_output():
-        instruction_family = bin(get_arg(instruction, itypes.family_code),width=5)
-        opcode.next = get_arg(instruction, itypes.opcode)
-        
-        # Branch Instructions
-        if instruction_family == '11000':
+        instruction_family = instruction[7:2]
+        opcode.next = instruction[7:]
 
-            funct3.next = get_arg(instruction, itypes.funct3)
+        # Branch Instructions
+        if instruction_family == int('11000', 2):
+
+            funct3.next = instruction[15:12]
             funct7.next = intbv(0)
 
-            rs1.next = get_arg(instruction, itypes.rs1)
-            rs2.next = get_arg(instruction, itypes.rs2)
-            imm12hi.next = get_arg(instruction, itypes.imm12hi)
-            imm12lo.next = get_arg(instruction, itypes.imm12lo)
+            rs1.next = instruction[20:15]
+            rs2.next = instruction[25:20]
+            imm12hi.next = concat(instruction[27:25], instruction[12:8])
+            imm12lo.next = concat(instruction[32], instruction[7], instruction[31:27])
             imm12.next = intbv(0)
             imm20.next = intbv(0)
             shamt.next = intbv(0)
@@ -128,18 +131,18 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             rd.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = (itypes.rs1, itypes.rs2, itypes.imm12lo, itypes.imm12hi)
-            arg_select.next = get_arg_select(arg_list)
+            # arg_list = (itypes.rs1, itypes.rs2, itypes.imm12lo, itypes.imm12hi)
+            arg_select.next = int('1100110000', 2)
 
         # Jump Instructions
-        elif instruction_family == '11001':
-            
+        elif instruction_family == int('11001', 2):
+
             funct3.next = intbv(0)
             funct7.next = intbv(0)
 
-            rs1.next = get_arg(instruction, itypes.rs1)
-            rd.next = get_arg(instruction, itypes.rd)
-            imm12.next = get_arg(instruction, itypes.imm12)
+            rs1.next = instruction[20:15]
+            rd.next = instruction[12:7]
+            imm12.next = instruction[32:20]
             rs2.next = intbv(0)
             imm12lo.next = intbv(0)
             imm12hi.next = intbv(0)
@@ -148,54 +151,54 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = (itypes.rs1, itypes.rd, itypes.imm12)
-            arg_select.next = get_arg_select(arg_list)
+            # arg_list = (itypes.rs1, itypes.rd, itypes.imm12)
+            arg_select.next = int('1010001000', 2)
 
-        elif instruction_family == '11011':
-            
+        elif instruction_family == int('11011', 2):
+
             funct3.next = intbv(0)
             funct7.next = intbv(0)
 
             rs1.next = intbv(0)
-            rd.next = get_arg(instruction, itypes.rd)
-            imm12.next =intbv(0)
+            rd.next = instruction[12:7]
+            imm12.next = intbv(0)
             rs2.next = intbv(0)
             imm12lo.next = intbv(0)
             imm12hi.next = intbv(0)
-            imm20.next = get_arg(instruction, itypes.imm20)
+            imm20.next = concat(instruction[31], instruction[20:12], instruction[20], instruction[31:21])
             shamt.next = intbv(0)
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = (itypes.rd, itypes.imm20)
-            arg_select.next = get_arg_select(arg_list)
+            # arg_list = (itypes.rd, itypes.imm20)
+            arg_select.next = int('0010000100', 2)
 
         # LUI and AUIPC
-        elif instruction_family == '01101' or instruction_family == '00101':
-            
+        elif instruction_family == int('01101', 2) or instruction_family == int('00101', 2):
+
             funct3.next = intbv(0)
             funct7.next = intbv(0)
 
             rs1.next = intbv(0)
-            rd.next = get_arg(instruction, itypes.rd)
-            imm12.next =intbv(0)
+            rd.next = instruction[12:7]
+            imm12.next = intbv(0)
             rs2.next = intbv(0)
             imm12lo.next = intbv(0)
             imm12hi.next = intbv(0)
-            imm20.next = get_arg(instruction, itypes.imm20_pc)
+            imm20.next = instruction[31:12]
             shamt.next = intbv(0)
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = (itypes.rd, itypes.imm20)
-            arg_select.next = get_arg_select(arg_list)
+            # arg_list = (itypes.rd, itypes.imm20)
+            arg_select.next = int('0010000100', 2)
 
-        # Addition and Logical immediate Instructions 
-        elif instruction_family == '00100':
-            funct3.next = get_arg(instruction, itypes.funct3)
+        # Addition and Logical immediate Instructions
+        elif instruction_family == int('00100', 2):
+            funct3.next = instruction[15:12]
 
-            rs1.next = get_arg(instruction,itypes.rs1)
-            rd.next = get_arg(instruction,itypes.rd)
+            rs1.next = instruction[20:15]
+            rd.next = instruction[12:7]
             imm12.next = intbv(0)
             rs2.next = intbv(0)
             imm12lo.next = intbv(0)
@@ -204,26 +207,26 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            if get_arg(instruction, itypes.funct3) in (1,5):
-                shamt.next = get_arg(instruction,itypes.shamt)
-                funct7.next = get_arg(instruction, itypes.funct7)
+            if instruction[15:12] == 1 or instruction[15:12] == 5:
+                shamt.next = instruction[25:20]
+                funct7.next = instruction[32:25]
                 imm12.next = intbv(0)
-                arg_list = (itypes.rs1, itypes.rd, itypes.shamt)
-                arg_select.next = get_arg_select(arg_list)
-            else :
+                # arg_list = (itypes.rs1, itypes.rd, itypes.shamt)
+                arg_select.next = int('1010000010', 2)
+            else:
                 shamt.next = intbv(0)
                 funct7.next = intbv(0)
-                imm12.next = get_arg(instruction, itypes.imm12)
-                arg_list = (itypes.rs1, itypes.rd, itypes.imm12)
-                arg_select.next = get_arg_select(arg_list)
-                    
+                imm12.next = instruction[32:20]
+                # arg_list = (itypes.rs1, itypes.rd, itypes.imm12)
+                arg_select.next = int('1010001000', 2)
+
         # Addition and Logical Instructions
-        elif instruction_family == '01100':
-            funct3.next = get_arg(instruction, itypes.funct3)
+        elif instruction_family == int('01100', 2):
+            funct3.next = instruction[15:12]
             funct7.next = intbv(0)
-            rs1.next = get_arg(instruction, itypes.rs1)
-            rs2.next = get_arg(instruction, itypes.rs2)
-            rd.next = get_arg(instruction, itypes.rd)
+            rs1.next = instruction[20:15]
+            rs2.next = instruction[25:20]
+            rd.next = instruction[12:7]
             imm12.next = intbv(0)
             imm12lo.next = intbv(0)
             imm12hi.next = intbv(0)
@@ -232,12 +235,12 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = (itypes.rd, itypes.rs1, itypes.rs2)
-            arg_select.next = get_arg_select(arg_list)                  
+            # arg_list = (itypes.rd, itypes.rs1, itypes.rs2)
+            arg_select.next = int('1110000000', 2)
 
         # FENCE and FENCE.I instructions
-        elif instruction_family == '00011':
-            funct3.next = get_arg(instruction, itypes.funct3)
+        elif instruction_family == int('00011', 2):
+            funct3.next = instruction[15:12]
             funct7.next = intbv(0)
             rs1.next = intbv(0)
             rs2.next = intbv(0)
@@ -250,18 +253,18 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = ()
-            arg_select.next = get_arg_select(arg_list)
+            # arg_list = ()
+            arg_select.next = int('0000000000', 2)
 
         # Load Instructions
-        elif instruction_family == '00000':
-            
-            funct3.next = get_arg(instruction, itypes.funct3)
+        elif instruction_family == int('00000', 2):
+
+            funct3.next = instruction[15:12]
             funct7.next = intbv(0)
 
-            rs1.next = get_arg(instruction, itypes.rs1)
-            rd.next = get_arg(instruction, itypes.rd)
-            imm12.next = get_arg(instruction, itypes.imm12)
+            rs1.next = instruction[20:15]
+            rd.next = instruction[12:7]
+            imm12.next = instruction[32:20]
             rs2.next = intbv(0)
             imm12lo.next = intbv(0)
             imm12hi.next = intbv(0)
@@ -270,18 +273,18 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = (itypes.rs1, itypes.rd, itypes.imm12)
-            arg_select.next = get_arg_select(arg_list)
+            # arg_list = (itypes.rs1, itypes.rd, itypes.imm12)
+            arg_select.next = int('1010001000', 2)
 
         # Store Instructions
-        elif instruction_family == '01000':
-            
-            funct3.next = get_arg(instruction, itypes.funct3)
+        elif instruction_family == int('01000', 2):
+
+            funct3.next = instruction[15:12]
             funct7.next = intbv(0)
 
-            rs1.next = get_arg(instruction, itypes.rs1)
-            rs2.next = get_arg(instruction, itypes.rs2)
-            imm12.next = get_arg(instruction, itypes.imm12_sb)
+            rs1.next = instruction[20:15]
+            rs2.next = instruction[25:20]
+            imm12.next = concat(instruction[32:25], instruction[12:7])
             rd.next = intbv(0)
             imm12lo.next = intbv(0)
             imm12hi.next = intbv(0)
@@ -290,30 +293,30 @@ def hdl_decoder(instruction, arg_select, rs1, rs2, rd, rm, imm12lo, imm12hi, imm
             shamtw.next = intbv(0)
             rm.next = intbv(0)
 
-            arg_list = (itypes.rs1, itypes.rs2, itypes.imm12)
-            arg_select.next = get_arg_select(arg_list)
+            # arg_list = (itypes.rs1, itypes.rs2, itypes.imm12)
+            arg_select.next = int('1100001000', 2)
 
         # System Instructions
-        elif instruction_family == '11100':
-            funct3.next = get_arg(instruction, itypes.funct3)
+        elif instruction_family == int('11100', 2):
+            funct3.next = instruction[15:12]
             funct7.next = intbv(0)
             rs1.next = intbv(0)
             rs2.next = intbv(0)
-            imm12.next = get_arg(instruction, itypes.imm12)
+            imm12.next = instruction[32:20]
             imm12lo.next = intbv(0)
             imm12hi.next = intbv(0)
             imm20.next = intbv(0)
             shamt.next = intbv(0)
             shamtw.next = intbv(0)
             rm.next = intbv(0)
-            
-            if get_arg(instruction, itypes.funct3) == 0:
+
+            if instruction[15:12] == 0:
                 rd.next = intbv(0)
-                arg_list = (itypes.imm12,)
-                arg_select.next = get_arg_select(arg_list)
+                # arg_list = (itypes.imm12,)
+                arg_select.next = int('0000001000', 2)
             else:
-                rd.next = get_arg(instruction, itypes.rd)
-                arg_list = (itypes.rd, itypes.imm12)
-                arg_select.next = get_arg_select(arg_list)
+                rd.next = instruction[12:7]
+                # arg_list = (itypes.rd, itypes.imm12)
+                arg_select.next = int('0010001000', 2)
 
     return decoder_output
