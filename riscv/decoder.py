@@ -6,43 +6,43 @@ from riscv.instruction_table import instruction_table
 
 def get_hex(binary_str):
     """
-	Returns the hexadecimal string literal for the given binary string 
-	literal input
+    Returns the hexadecimal string literal for the given binary string
+    literal input
 
-	:param str binary_str: Binary string to be converted to hex
-	"""
+    :param str binary_str: Binary string to be converted to hex
+    """
 
     return "{0:#0{1}x}".format(int(binary_str, base=2), 4)
 
 
 def get_int(binary_str):
     """
-	Returns the integer string literal for the given binary string 
-	literal input
+    Returns the integer string literal for the given binary string
+    literal input
 
-	:param str binary_str: Binary string to be converted to int
-	"""
+    :param str binary_str: Binary string to be converted to int
+    """
     return str(int(binary_str, base=2))
 
 
 def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12hi=None, rd=None, imm20=None, imm12=None,
                shamt=None, shamtw=None, rm=None):
     """
-	Wraps the non-empty arguments and the instruction name into a dictionary with
-	arguments as keys and vals as values
+    Wraps the non-empty arguments and the instruction name into a dictionary with
+    arguments as keys and vals as values
 
-	:param str instr: Name of the instruction
-	:param str rs1: Source register 1
-	:param str rs2: Source register 2
-	:param str rd: Destination register
-	:param str rm: Extended register
-	:param str imm12lo: Lower 6 bits of Immediate 12
-	:param str imm12hi: Higher 6 bits of Immediate 12
-	:param str imm12: Immediate 12
-	:param str imm20: Immediate 20
-	:param str shamt: Shift args
-	:param str shamtw: Shift args
-	"""
+    :param str instr: Name of the instruction
+    :param str rs1: Source register 1
+    :param str rs2: Source register 2
+    :param str rd: Destination register
+    :param str rm: Extended register
+    :param str imm12lo: Lower 6 bits of Immediate 12
+    :param str imm12hi: Higher 6 bits of Immediate 12
+    :param str imm12: Immediate 12
+    :param str imm20: Immediate 20
+    :param str shamt: Shift args
+    :param str shamtw: Shift args
+    """
     arg_list = [rs1, rs2, imm12lo, imm12hi, rd, imm20, imm12, shamt, shamtw, rm]
     arg_keys = ['rs1', 'rs2', 'imm12lo', 'imm12hi', 'rd', 'imm20', 'imm12', 'shamt', 'shamtw', 'rm']
 
@@ -61,24 +61,24 @@ def get_output(debug=False, instr=None, rs1=None, rs2=None, imm12lo=None, imm12h
 
 def print_dic(dictionary):
     """
-	Utility function to print the output dictionary for 
-	debug purposes
+    Utility function to print the output dictionary for
+    debug purposes
 
-	:param dictionary dictionary: Dictionary object of the decoded instruction
-	"""
+    :param dictionary dictionary: Dictionary object of the decoded instruction
+    """
     json_dict = json.dumps(dictionary, sort_keys=False, indent=4)
     print(json_dict)
 
 
 def decode(instruction, debug=False):
     """
-	Decodes the binary instruction string input and returns a 
-	dictionary with the instruction name and arguments as keys and 
-	their vals as values 
+    Decodes the binary instruction string input and returns a
+    dictionary with the instruction name and arguments as keys and
+    their vals as values
 
-	:param str instruction: Binary string that contains the encoded instruction
-	:param bool debug: Flag to print decoded dictionary (if true).
-	"""
+    :param str instruction: Binary string that contains the encoded instruction
+    :param bool debug: Flag to print decoded dictionary (if true).
+    """
 
     family = instruction[-7:-2]
 
