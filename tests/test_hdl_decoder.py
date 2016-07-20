@@ -1,7 +1,7 @@
 import os
 import sys
 
-from myhdl import Simulation, Signal, bin, intbv, instance, delay
+from myhdl import Simulation, bin, instance, delay
 
 lib_path = os.path.abspath(os.path.join('..','riscv'))
 sys.path.append(lib_path)
