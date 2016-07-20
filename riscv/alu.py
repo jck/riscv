@@ -1,4 +1,4 @@
-from myhdl import *
+from myhdl import block, always_comb, concat
 from riscv.opcode_constants import *
 from riscv.alu_constants import *
 
