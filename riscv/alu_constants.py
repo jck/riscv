@@ -1,4 +1,4 @@
-from myhdl import modbv, intbv
+from myhdl import modbv
 
 ALU_OP_WIDTH = 4
 
