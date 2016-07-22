@@ -17,7 +17,7 @@ def src_a_mux(src_a_sel, PC_DX, rs1_data, alu_src_a):
 
     @always_comb
     def src_a_mux_output():
-        alu_src_a.next = modbv(0)[XPR_LEN - 1:]
+        alu_src_a.next = modbv(0)[XPR_LEN:]
 
         if src_a_sel == SRC_A_RS1:
             alu_src_a.next = PC_DX
