@@ -1,3 +1,5 @@
+from myhdl import modbv
+
 SRC_A_SEL_WIDTH = 2
 SRC_A_RS1  = modbv(0)[SRC_A_SEL_WIDTH:]
 SRC_A_PC   = modbv(1)[SRC_A_SEL_WIDTH:]
