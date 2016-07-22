@@ -6,6 +6,14 @@ from riscv.control_constants import *
 @block
 def immediate_gen(instruction, imm_type, imm):
 
+    """
+    Generates the immediate value from the instruction
+
+    :param Signal instruction: The whole instruction
+    :param Signal imm_type: The type of immediate value (I, S, U, J)
+    :param Signal imm: The output immediate value
+    """
+
     @always_comb
     def output():
 
