@@ -1,6 +1,6 @@
 from random import randint
 
-from myhdl import block, instance, Signal, delay
+from myhdl import block, instance, Signal, delay, modbv
 
 from riscv.src_a_mux import src_a_mux
 from riscv.src_b_mux import src_b_mux

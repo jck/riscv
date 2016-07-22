@@ -1,4 +1,4 @@
-from myhdl import block, instance, Signal, delay
+from myhdl import block, instance, Signal, delay, modbv
 
 from riscv.alu import alu
 from riscv.alu_constants import *
