@@ -15,8 +15,12 @@ def test_alu():
     val2 = randint(-(1 << (XPR_LEN - 1)), (1 << (XPR_LEN - 1)) - 1)
     in1 = Signal(modbv(val1)[XPR_LEN:])
     in2 = Signal(modbv(val2)[XPR_LEN:])
+
     alu_inst = alu(op, in1, in2, out)
+    alu_inst.convert(hdl='Verilog')
+
     shamt = in2[SHAMT_WIDTH:]
+
     @instance
     def test():
         op.next = ALU_OP_ADD
