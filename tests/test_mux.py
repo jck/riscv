@@ -1,6 +1,6 @@
 from random import randint
 
-from myhdl import block, instance, Signal, delay
+from myhdl import block, instance, Signal, delay, modbv
 
 from riscv.src_a_mux import src_a_mux
 from riscv.src_b_mux import src_b_mux
@@ -17,7 +17,9 @@ def test_mux():
         [Signal(modbv(randint(0, (1 << XPR_LEN) - 1))[XPR_LEN:]) for _ in range(6)]
 
     mux_a = src_a_mux(src_a_sel, PC_DX, rs1_data, alu_src_a)
+    mux_a.convert(hdl='Verilog')
     mux_b = src_b_mux(src_b_sel, imm, rs2_data, alu_src_b)
+    mux_b.convert(hdl='Verilog')
 
     @instance
     def test():
