@@ -1,7 +1,6 @@
-from myhdl import always_comb, block, modbv
+from myhdl import always_comb, block, modbv, concat
 
 from riscv.control_constants import *
-from riscv.opcode_constants import *
 
 
 @block
