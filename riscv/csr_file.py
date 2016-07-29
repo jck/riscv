@@ -8,15 +8,12 @@ from riscv.control_constants import *
 def reduced_or(input):
     """
     Returns the reduced or of the input
-    :param Signal input: Input 
-    :param modbv output: Ouput 
+    :param Signal input: Input
     """
-
     if input:
         return modbv(1)[1:]
     else:
         return modbv(0)[1:]
-
 
 @block
 def csr_file(clk,
@@ -113,7 +110,7 @@ def csr_file(clk,
 
         handler_PC.next = mtvec + (padded_prv << 5)
 
-        prv = priv_stack[2:1]
+        prv.next = priv_stack[2:1]
         ie.next = priv_stack[0]
 
         host_wen.next = (htif_state == HTIF_STATE_IDLE) & htif_pcr_req_valid & htif_pcr_req_rw
@@ -390,7 +387,7 @@ def csr_file(clk,
                 elif addr == CSR_ADDR_TIMEH:
                     time_full.next[2 * XPR_LEN:XPR_LEN] = wdata_internal
                 elif addr == CSR_ADDR_INSTRETH:
-                    instret_full.next[2 * XPR_LEN:XPR_LEN] = wdata_internal;
+                    instret_full.next[2 * XPR_LEN:XPR_LEN] = wdata_internal
                 elif addr == CSR_ADDR_MTVEC:
                     mtvec.next = wdata_internal & concat(modbv(1)[30:], modbv(0)[2:])
                 elif addr == CSR_ADDR_MTIMECMP:
