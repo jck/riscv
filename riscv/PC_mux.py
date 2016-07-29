@@ -1,6 +1,7 @@
-from myhdl import always_comb, block, modbv, concat
+from myhdl import always_comb, block, modbv, concat, Signal
 
 from riscv.control_constants import *
+from riscv.opcode_constants import XPR_LEN
 
 
 @block
@@ -10,7 +11,7 @@ def PC_mux(PC_src_sel, inst_DX, rs1_data, PC_IF, PC_DX,
     PC multiplexer module
 
     :param Signal PC_src_sel : Select signal
-    :param Signal inst_DX: Insruction
+    :param Signal inst_DX: Instruction
     :param Signal rs1_data: data from register source 1
     :param Signal PC_IF: Program counter IF past
     :param Signal PC_DX: Program counter DX
@@ -18,37 +19,59 @@ def PC_mux(PC_src_sel, inst_DX, rs1_data, PC_IF, PC_DX,
     :param Signal epc: Exception Program Counter
     :param Signal PC_PIF: Program counter IF current
     """
+
+    base = Signal(modbv(0)[XPR_LEN:])
+    offset = Signal(modbv(0)[XPR_LEN:])
+
+    @always_comb
+    def PC_mux_assign():
+
+        imm_b = modbv(0)[XPR_LEN:]
+        if inst_DX[31]:
+            imm_b = concat(modbv((1 << 20) - 1)[20:], inst_DX[7], inst_DX[31:25],
+                           inst_DX[12:8], False)
+        else:
+            imm_b = concat(modbv(0)[20:], inst_DX[7], inst_DX[31:25], inst_DX[12:8], False)
+
+        jal_offset = modbv(0)[XPR_LEN:]
+        if inst_DX[31]:
+            jal_offset = concat(modbv((1 << 12) - 1)[12:], inst_DX[20:12], inst_DX[20],
+                                inst_DX[31:25], inst_DX[25:21], False)
+        else:
+            jal_offset = concat(modbv(0)[12:], inst_DX[20:12], inst_DX[20],
+                                inst_DX[31:25], inst_DX[25:21], False)
+
+        jalr_offset = modbv(0)[XPR_LEN:]
+        if inst_DX[31]:
+            jalr_offset = concat(modbv((1 << 21) - 1)[21:], inst_DX[31:21], False)
+        else:
+            jalr_offset = concat(modbv(0)[21:], inst_DX[31:21], False)
+
+        if PC_src_sel == PC_JAL_TARGET:
+            base.next = PC_DX
+            offset.next = jal_offset
+        elif PC_src_sel == PC_JALR_TARGET:
+            base.next = rs1_data
+            offset.next = jalr_offset
+        elif PC_src_sel == PC_BRANCH_TARGET:
+            base.next = PC_DX
+            offset.next = imm_b
+        elif PC_src_sel == PC_REPLAY:
+            base.next = PC_IF
+            offset.next = 0
+        elif PC_src_sel == PC_HANDLER:
+            base.next = handler_PC
+            offset.next = 0
+        elif PC_src_sel == PC_EPC:
+            base.next = epc
+            offset.next = 0
+        else:
+            base.next = PC_IF
+            offset.next = 4
+
     @always_comb
     def PC_mux_output():
 
-        imm_b = concat(inst_DX[31], inst_DX[7], inst_DX[30:25],
-                       inst_DX[11:8], modbv(0)[1:])[20:]
-        jal_offset = concat(inst_DX[31], inst_DX[19:12], inst_DX[20],
-                            inst_DX[30:25], inst_DX[24:21], modbv(0)[1:])[12:]
-        jalr_offset = concat(inst_DX[31], inst_DX[30:21], modbv(0)[1:])[21:]
-
-        if PC_src_sel == PC_JAL_TARGET:
-            base = PC_DX
-            offset = jal_offset
-        elif PC_src_sel == PC_JALR_TARGET:
-            base = rs1_data
-            offset = jalr_offset
-        elif PC_src_sel == PC_BRANCH_TARGET:
-            base = PC_DX
-            offset = imm_b
-        elif PC_src_sel == PC_REPLAY:
-            base = PC_IF
-            offset = 0
-        elif PC_src_sel == PC_HANDLER:
-            base = handler_PC
-            offset = 0
-        elif PC_src_sel == PC_EPC:
-            base = epc
-            offset = 0
-        else:
-            base = PC_IF
-            offset = 4
-
         PC_PIF.next = base + offset
 
-    return PC_mux_output
+    return PC_mux_output, PC_mux_assign
