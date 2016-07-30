@@ -6,6 +6,7 @@ from riscv.alu_constants import ALU_OP_WIDTH
 from riscv.control_constants import *
 from riscv.csr_constants import CSR_ADDR_WIDTH, CSR_CMD_WIDTH, PRV_WIDTH, ECODE_WIDTH
 from riscv.csr_file import csr_file
+from riscv.controller import controller
 from riscv.immediate_gen import immediate_gen
 from riscv.md_constants import MD_OUT_SEL_WIDTH, MD_OP_WIDTH
 from riscv.opcode_constants import XPR_LEN, INST_WIDTH, REG_ADDR_WIDTH, RV_NOP
