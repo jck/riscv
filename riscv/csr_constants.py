@@ -61,3 +61,7 @@ PRV_U         = 0
 PRV_S         = 1
 PRV_H         = 2
 PRV_M         = 3
+
+
+# Platform constants 
+N_EXT_INTS = 24
