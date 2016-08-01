@@ -1,4 +1,4 @@
-from myhdl import always_comb, block, modbv, concat, Signal, always
+from myhdl import always_comb, block, modbv, concat, Signal, always, intbv
 
 from riscv.md_constants import *
 from riscv.opcode_constants import *
@@ -38,9 +38,9 @@ def mult_div(clock, reset, req_valid, req_ready, req_in_1_signed, req_in_2_signe
 
     def abs_input(data, is_signed):
         if data[XPR_LEN - 1] and is_signed:
-            return -data
+            return intbv(-data)[XPR_LEN:]
         else:
-            return data
+            return intbv(+data)[XPR_LEN:]
 
     @always_comb
     def assign_1():
