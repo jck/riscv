@@ -1,4 +1,4 @@
-from myhdl import block, always_comb, concat, modbv, always, Signal
+from myhdl import block, always_comb, concat, modbv, always, Signal, instances
 
 from riscv.csr_constants import *
 from riscv.opcode_constants import *
@@ -14,6 +14,7 @@ def reduced_or(input):
         return modbv(1)[1:]
     else:
         return modbv(0)[1:]
+
 
 @block
 def csr_file(clk,
@@ -417,4 +418,4 @@ def csr_file(clk,
             if htif_fire & htif_pcr_req_addr == CSR_ADDR_TO_HOST & ~system_wen:
                 to_host.next = 0
 
-    return csr_setup, interrupt_setup, htif_setup, htif_comb, priv_stack_setup, assign_1, assign_2
+    return instances
