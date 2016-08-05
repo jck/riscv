@@ -1,4 +1,4 @@
-from myhdl import block, always_comb, concat, modbv, always, Signal, instances
+from myhdl import block, always_comb, concat, intbv, always, Signal, instances
 
 from riscv.csr_constants import *
 from riscv.opcode_constants import *
@@ -11,9 +11,9 @@ def reduced_or(input):
     :param Signal input: Input
     """
     if input:
-        return modbv(1)[1:]
+        return intbv(1)[1:]
     else:
-        return modbv(0)[1:]
+        return intbv(0)[1:]
 
 
 @block
@@ -49,58 +49,58 @@ def csr_file(clk,
     HTIF_STATE_IDLE = 0
     HTIF_STATE_WAIT = 1
 
-    htif_rdata = Signal(modbv(0)[HTIF_PCR_WIDTH:])
-    htif_resp_data = Signal(modbv(0)[HTIF_PCR_WIDTH:])
+    htif_rdata = Signal(intbv(0)[HTIF_PCR_WIDTH:])
+    htif_resp_data = Signal(intbv(0)[HTIF_PCR_WIDTH:])
 
-    htif_state = Signal(modbv(0)[1:])
-    htif_fire = Signal(modbv(0)[1:])
-    next_htif_state = Signal(modbv(0)[1:])
+    htif_state = Signal(intbv(0)[1:])
+    htif_fire = Signal(intbv(0)[1:])
+    next_htif_state = Signal(intbv(0)[1:])
 
-    cycle_full = Signal(modbv(0)[CSR_COUNTER_WIDTH:])
-    time_full = Signal(modbv(0)[CSR_COUNTER_WIDTH:])
-    instret_full = Signal(modbv(0)[CSR_COUNTER_WIDTH:])
-    priv_stack = Signal(modbv(0)[5:])
+    cycle_full = Signal(intbv(0)[CSR_COUNTER_WIDTH:])
+    time_full = Signal(intbv(0)[CSR_COUNTER_WIDTH:])
+    instret_full = Signal(intbv(0)[CSR_COUNTER_WIDTH:])
+    priv_stack = Signal(intbv(0)[5:])
 
-    mtvec = Signal(modbv(0)[XPR_LEN:])
-    mie = Signal(modbv(0)[XPR_LEN:])
-    mtimecmp = Signal(modbv(0)[XPR_LEN:])
-    mscratch = Signal(modbv(0)[XPR_LEN:])
-    mepc = Signal(modbv(0)[XPR_LEN:])
-    mbadaddr = Signal(modbv(0)[XPR_LEN:])
-    mcpuid = Signal(modbv(0)[XPR_LEN:])
-    mimpid = Signal(modbv(0)[XPR_LEN:])
-    mhartid = Signal(modbv(0)[XPR_LEN:])
-    mstatus = Signal(modbv(0)[XPR_LEN:])
-    mtdeleg = Signal(modbv(0)[XPR_LEN:])
-    mip = Signal(modbv(0)[XPR_LEN:])
-    mcause = Signal(modbv(0)[XPR_LEN:])
-    to_host = Signal(modbv(0)[XPR_LEN:])
-    from_host = Signal(modbv(0)[XPR_LEN:])
+    mtvec = Signal(intbv(0)[XPR_LEN:])
+    mie = Signal(intbv(0)[XPR_LEN:])
+    mtimecmp = Signal(intbv(0)[XPR_LEN:])
+    mscratch = Signal(intbv(0)[XPR_LEN:])
+    mepc = Signal(intbv(0)[XPR_LEN:])
+    mbadaddr = Signal(intbv(0)[XPR_LEN:])
+    mcpuid = Signal(intbv(0)[XPR_LEN:])
+    mimpid = Signal(intbv(0)[XPR_LEN:])
+    mhartid = Signal(intbv(0)[XPR_LEN:])
+    mstatus = Signal(intbv(0)[XPR_LEN:])
+    mtdeleg = Signal(intbv(0)[XPR_LEN:])
+    mip = Signal(intbv(0)[XPR_LEN:])
+    mcause = Signal(intbv(0)[XPR_LEN:])
+    to_host = Signal(intbv(0)[XPR_LEN:])
+    from_host = Signal(intbv(0)[XPR_LEN:])
 
-    wdata_internal = Signal(modbv(0)[XPR_LEN:])
-    interrupt_code = Signal(modbv(0)[ECODE_WIDTH:])
+    wdata_internal = Signal(intbv(0)[XPR_LEN:])
+    interrupt_code = Signal(intbv(0)[ECODE_WIDTH:])
 
-    mtip = Signal(modbv(0)[1:])
-    msip = Signal(modbv(0)[1:])
-    mint = Signal(modbv(0)[1:])
-    ie = Signal(modbv(0)[1:])
+    mtip = Signal(intbv(0)[1:])
+    msip = Signal(intbv(0)[1:])
+    mint = Signal(intbv(0)[1:])
+    ie = Signal(intbv(0)[1:])
 
-    host_wen = Signal(modbv(0)[1:])
-    system_en = Signal(modbv(0)[1:])
-    system_wen = Signal(modbv(0)[1:])
-    wen_internal = Signal(modbv(0)[1:])
-    illegal_region = Signal(modbv(0)[1:])
-    defined = Signal(modbv(0)[1:])
+    host_wen = Signal(intbv(0)[1:])
+    system_en = Signal(intbv(0)[1:])
+    system_wen = Signal(intbv(0)[1:])
+    wen_internal = Signal(intbv(0)[1:])
+    illegal_region = Signal(intbv(0)[1:])
+    defined = Signal(intbv(0)[1:])
 
-    uinterrupt = Signal(modbv(0)[1:])
-    minterrupt = Signal(modbv(0)[1:])
-    code_imem = Signal(modbv(0)[1:])
-    mtimer_expired = Signal(modbv(0)[1:])
+    uinterrupt = Signal(intbv(0)[1:])
+    minterrupt = Signal(intbv(0)[1:])
+    code_imem = Signal(intbv(0)[1:])
+    mtimer_expired = Signal(intbv(0)[1:])
 
-    mtime_full = Signal(modbv(0)[CSR_COUNTER_WIDTH:])
-    mecode = Signal(modbv(0)[ECODE_WIDTH:])
+    mtime_full = Signal(intbv(0)[CSR_COUNTER_WIDTH:])
+    mecode = Signal(intbv(0)[ECODE_WIDTH:])
 
-    padded_prv = Signal(modbv(0)[XPR_LEN:])
+    padded_prv = Signal(intbv(0)[XPR_LEN:])
 
     @always_comb
     def assign_1():
@@ -133,7 +133,7 @@ def csr_file(clk,
             else:
                 wdata_internal.next = wdata
 
-        uinterrupt.next = modbv(0)[1:]
+        uinterrupt.next = intbv(0)[1:]
         interrupt_pending.next = reduced_or(mip)
         minterrupt.next = reduced_or(mie & mip)
 
@@ -145,7 +145,7 @@ def csr_file(clk,
         elif prv.next == PRV_M:
             interrupt_taken.next = (ie & minterrupt)
         else:
-            interrupt_taken.next = modbv(1)[1:]
+            interrupt_taken.next = intbv(1)[1:]
 
     @always(clk.posedge)
     def htif_setup():
@@ -158,11 +158,11 @@ def csr_file(clk,
 
     @always_comb
     def htif_comb():
-        htif_fire.next = modbv(0)[1:]
+        htif_fire.next = intbv(0)[1:]
         next_htif_state.next = htif_state
         if htif_state == HTIF_STATE_IDLE:
             if htif_pcr_req_valid:
-                htif_fire.next = modbv(1)[1:]
+                htif_fire.next = intbv(1)[1:]
                 next_htif_state.next = HTIF_STATE_WAIT
         elif htif_state == HTIF_STATE_WAIT:
             if htif_pcr_resp_ready:
@@ -173,23 +173,23 @@ def csr_file(clk,
         htif_pcr_resp_data.next = htif_resp_data
 
         mcpuid.next = (1 << 20) | (1 << 8)
-        mimpid.next = modbv(int('8000', 16))[32:]
+        mimpid.next = intbv(int('8000', 16))[32:]
         mhartid.next = 0
 
     @always(clk.posedge)
     def priv_stack_setup():
         if reset:
-            priv_stack.next = modbv(int('000110', 2))[6:]
+            priv_stack.next = intbv(int('000110', 2))[6:]
         elif wen_internal & addr == CSR_ADDR_MSTATUS:
             priv_stack.next = wdata_internal[5:0]
         elif exception:
-            priv_stack.next = concat(priv_stack[2:0], modbv(int('110', 2))[3:])
+            priv_stack.next = concat(priv_stack[2:0], intbv(int('110', 2))[3:])
         elif eret:
-            priv_stack.next = concat(modbv(int('001', 2))[3:], priv_stack[5:3])
+            priv_stack.next = concat(intbv(int('001', 2))[3:], priv_stack[5:3])
 
         epc.next = mepc
 
-        mstatus.next = concat(modbv(0)[26:], priv_stack)
+        mstatus.next = concat(intbv(0)[26:], priv_stack)
         mtdeleg.next = 0
         mtimer_expired.next = (mtimecmp == mtime_full[XPR_LEN:])
 
@@ -207,7 +207,7 @@ def csr_file(clk,
                 mtip.next = wdata_internal[7]
                 msip.next = wdata_internal[3]
 
-        mip.next = concat(ext_interrupts, mtip, modbv(0)[3:], msip, modbv(0)[3:])
+        mip.next = concat(ext_interrupts, mtip, intbv(0)[3:], msip, intbv(0)[3:])
 
     @always(clk.posedge)
     def wen_setup():
@@ -219,11 +219,11 @@ def csr_file(clk,
     @always(clk.posedge)
     def exception_setup():
         if interrupt_taken:
-            mepc.next = (exception_PC & concat(modbv(1)[30:], modbv(0)[2:])) + modbv(int('4', 16))[XPR_LEN:]
+            mepc.next = (exception_PC & concat(intbv(1)[30:], intbv(0)[2:])) + intbv(int('4', 16))[XPR_LEN:]
         if exception:
-            mepc.next = exception_PC & concat(modbv(1)[30:], modbv(0)[2:])
+            mepc.next = exception_PC & concat(intbv(1)[30:], intbv(0)[2:])
         if wen_internal & addr == CSR_ADDR_MEPC:
-            mepc.next = wdata_internal & concat(modbv(1)[30:], modbv(0)[2:])
+            mepc.next = wdata_internal & concat(intbv(1)[30:], intbv(0)[2:])
 
     @always(clk.posedge)
     def interrupt_exception_setup():
@@ -236,14 +236,14 @@ def csr_file(clk,
         else:
             if interrupt_taken:
                 mecode.next = interrupt_code
-                mint.next = modbv(1)[1:]
+                mint.next = intbv(1)[1:]
             elif exception:
                 mecode.next = exception_code
-                mint.next = modbv(1)[1:]
+                mint.next = intbv(1)[1:]
 
     @always_comb
     def assign_2():
-        mcause.next = concat(mint, modbv(0)[27:], mecode)
+        mcause.next = concat(mint, intbv(0)[27:], mecode)
         code_imem.next = (exception_code == ECODE_INST_ADDR_MISALIGNED) | (exception_code == ECODE_INST_ADDR_MISALIGNED)
 
     @always(clk.posedge)
@@ -269,94 +269,94 @@ def csr_file(clk,
     def csr_addr_logic():
         if addr == CSR_ADDR_CYCLE:
             rdata.next = cycle_full[XPR_LEN:]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_TIME:
             rdata.next = time_full[XPR_LEN:]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_INSTRET:
             rdata.next = instret_full[XPR_LEN:]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_CYCLEH:
             rdata.next = cycle_full[2 * XPR_LEN:XPR_LEN]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_TIMEH:
             rdata.next = time_full[2 * XPR_LEN:XPR_LEN]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_INSTRETH:
             rdata.next = instret_full[2 * XPR_LEN:XPR_LEN]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MCPUID:
             rdata.next = mcpuid
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MIMPID:
             rdata.next = mimpid
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MHARTID:
             rdata.next = mhartid
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MSTATUS:
             rdata.next = mstatus
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MTVEC:
             rdata.next = mtvec
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MTDELEG:
             rdata.next = mtdeleg
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MIE:
             rdata.next = mie
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MTIMECMP:
             rdata.next = mtimecmp
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MTIME:
             rdata.next = mtime_full[XPR_LEN:]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MTIMEH:
             rdata.next = mtime_full[2 * XPR_LEN:XPR_LEN]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MSCRATCH:
             rdata.next = mscratch
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MEPC:
             rdata.next = mepc
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MCAUSE:
             rdata.next = mcause
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MBADADDR:
             rdata.next = mbadaddr
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_MIP:
             rdata.next = mip
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_CYCLEW:
             rdata.next = cycle_full[XPR_LEN:]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_TIMEW:
             rdata.next = time_full[XPR_LEN:]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_INSTRETW:
             rdata.next = instret_full[XPR_LEN:]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_CYCLEHW:
             rdata.next = cycle_full[2 * XPR_LEN:XPR_LEN]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_TIMEHW:
             rdata.next = time_full[2 * XPR_LEN:XPR_LEN]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_INSTRETHW:
             rdata.next = instret_full[2 * XPR_LEN:XPR_LEN]
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_TO_HOST:
             rdata.next = to_host
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         elif addr == CSR_ADDR_FROM_HOST:
             rdata.next = from_host
-            defined.next = modbv(1)[1:]
+            defined.next = intbv(1)[1:]
         else:
             rdata.next = 0
-            defined.next = modbv(0)[1:]
+            defined.next = intbv(0)[1:]
 
     @always(clk.posedge)
     def csr_seq_logic():
@@ -367,7 +367,7 @@ def csr_file(clk,
             mtime_full.next = 0
             to_host.next = 0
             from_host.next = 0
-            mtvec.next = modbv(int('100', 16))[12:]
+            mtvec.next = intbv(int('100', 16))[12:]
             mtimecmp.next = 0
             mscratch.next = 0
         else:
@@ -390,7 +390,7 @@ def csr_file(clk,
                 elif addr == CSR_ADDR_INSTRETH:
                     instret_full.next[2 * XPR_LEN:XPR_LEN] = wdata_internal
                 elif addr == CSR_ADDR_MTVEC:
-                    mtvec.next = wdata_internal & concat(modbv(1)[30:], modbv(0)[2:])
+                    mtvec.next = wdata_internal & concat(intbv(1)[30:], intbv(0)[2:])
                 elif addr == CSR_ADDR_MTIMECMP:
                     mtimecmp.next = wdata_internal
                 elif addr == CSR_ADDR_MTIME:

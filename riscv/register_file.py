@@ -1,4 +1,4 @@
-from myhdl import block, always_comb, Signal, modbv, always
+from myhdl import block, always_comb, Signal, intbv, always
 
 from riscv.opcode_constants import XPR_LEN
 
@@ -20,7 +20,7 @@ def register_file(clock, read_addr1, read_data1, read_addr2, read_data2, write_e
     """
 
     wen_internal = Signal(False)
-    data = [Signal(modbv(0)[XPR_LEN:]) for _ in range(32)]
+    data = [Signal(intbv(0)[XPR_LEN:]) for _ in range(32)]
 
     @always_comb
     def assign():

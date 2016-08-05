@@ -1,4 +1,4 @@
-from myhdl import always_comb, modbv, concat, block
+from myhdl import always_comb, intbv, concat, block
 
 from riscv.control_constants import *
 from riscv.csr_constants import *
@@ -57,7 +57,7 @@ def vscale_ctrl(clk,
     @always(clk.posedge)
     def IF_stage():
         if reset:
-            replay_IF = modbv(1)[1:]
+            replay_IF = intbv(1)[1:]
         else:
             replay_IF = (redirect & imem_wait) | (fence_i & store_in_WB)
 
@@ -100,47 +100,47 @@ def vscale_ctrl(clk,
         elif ecall:
             ex_code_DX = ECODE_ECALL_FROM_U + prv
 
-    dmem_size = concat(modbv(0)[1:], funct3[1:0])
+    dmem_size = concat(intbv(0)[1:], funct3[1:0])
     dmem_type = funct3
 
     @always_comb
     def control():
-        illegal_instruction = modbv(0)[1:]
+        illegal_instruction = intbv(0)[1:]
         csr_cmd_unkilled = CSR_IDLE
         csr_imm_sel = funct3[2]
-        ecall = modbv(0)[1:]
-        ebreak = modbv(0)[1:]
-        eret_unkilled = modbv(0)[1:]
-        fence_i = modbv(0)[1:]
-        branch_taken_unkilled = modbv(0)[1:]
-        jal_unkilled = modbv(0)[1:]
-        jalr_unkilled = modbv(0)[1:]
-        uses_rs1 = modbv(1)[1:]
-        uses_rs2 = modbv(0)[1:]
+        ecall = intbv(0)[1:]
+        ebreak = intbv(0)[1:]
+        eret_unkilled = intbv(0)[1:]
+        fence_i = intbv(0)[1:]
+        branch_taken_unkilled = intbv(0)[1:]
+        jal_unkilled = intbv(0)[1:]
+        jalr_unkilled = intbv(0)[1:]
+        uses_rs1 = intbv(1)[1:]
+        uses_rs2 = intbv(0)[1:]
         imm_type = IMM_I
         src_a_sel = SRC_A_RS1
         src_b_sel = SRC_B_IMM
         alu_op = ALU_OP_ADD
-        dmem_en_unkilled = modbv(0)[1:]
-        dmem_wen_unkilled = modbv(0)[1:]
-        wr_reg_unkilled_DX = modbv(0)[1:]
+        dmem_en_unkilled = intbv(0)[1:]
+        dmem_wen_unkilled = intbv(0)[1:]
+        wr_reg_unkilled_DX = intbv(0)[1:]
         wb_src_sel_DX = WB_SRC_ALU
-        uses_md_unkilled = modbv(0)[1:]
-        wfi_unkilled_DX = modbv(0)[1:]
+        uses_md_unkilled = intbv(0)[1:]
+        wfi_unkilled_DX = intbv(0)[1:]
 
         if opcode == RV32_LOAD:
-            dmem_en_unkilled = modbv(1)[1:]
-            wr_reg_unkilled_DX = modbv(1)[1:]
+            dmem_en_unkilled = intbv(1)[1:]
+            wr_reg_unkilled_DX = intbv(1)[1:]
             wb_src_sel_DX = WB_SRC_MEM
 
         elif opcode == RV32_STORE:
-            uses_rs2 = modbv(1)[1:]
+            uses_rs2 = intbv(1)[1:]
             imm_type = IMM_S
-            dmem_en_unkilled = modbv(1)[1:]
-            dmem_wen_unkilled = modbv(1)[1:]
+            dmem_en_unkilled = intbv(1)[1:]
+            dmem_wen_unkilled = intbv(1)[1:]
 
         elif opcode == RV32_BRANCH:
-            uses_rs2 = modbv(1)[1:]
+            uses_rs2 = intbv(1)[1:]
             branch_taken_unkilled = cmp_true
             src_b_sel = SRC_B_RS2
 
@@ -157,21 +157,21 @@ def vscale_ctrl(clk,
             elif funct3 == RV32_FUNCT3_BGEU:
                 alu_op = ALU_OP_SGEU
             else:
-                illegal_instruction = modbv(1)[1:]
+                illegal_instruction = intbv(1)[1:]
 
         elif opcode == RV32_JAL:
-            jal_unkilled = modbv(1)[1:]
-            uses_rs1 = modbv(0)[1:]
+            jal_unkilled = intbv(1)[1:]
+            uses_rs1 = intbv(0)[1:]
             src_a_sel = SRC_A_PC
             src_b_sel = SRC_B_FOUR
-            wr_reg_unkilled_DX = modbv(1)[1:]
+            wr_reg_unkilled_DX = intbv(1)[1:]
 
         elif opcode == RV32_JALR:
             illegal_instruction = (funct3 != 0)
-            jalr_unkilled = modbv(1)[1:]
+            jalr_unkilled = intbv(1)[1:]
             src_a_sel = SRC_A_PC
             src_b_sel = SRC_B_FOUR
-            wr_reg_unkilled_DX = modbv(1)[1:]
+            wr_reg_unkilled_DX = intbv(1)[1:]
 
         elif opcode == RV32_MISC_MEM:
             if funct3 == RV32_FUNCT3_FENCE:
@@ -179,26 +179,26 @@ def vscale_ctrl(clk,
                 if ((inst_DX[31:28] == 0) & (rs1_addr == 0) & (reg_to_wr_DX == 0)):
                     pass
                 else:
-                    illegal_instruction = modbv(1)[1:]
+                    illegal_instruction = intbv(1)[1:]
             elif funct3 == RV32_FUNCT3_FENCE_I:
                 if ((inst_DX[31:20] == 0) & (rs1_addr == 0) & (reg_to_wr_DX == 0)):
-                    fence_i = modbv(1)[1:]
+                    fence_i = intbv(1)[1:]
                 else:
-                    illegal_instruction = modbv(1)[1:]
+                    illegal_instruction = intbv(1)[1:]
             else:
-                illegal_instruction = modbv(1)[1:]
+                illegal_instruction = intbv(1)[1:]
 
         elif opcode == RV32_OP_IMM:
             alu_op = alu_op_arith
-            wr_reg_unkilled_DX = modbv(1)[1:]
+            wr_reg_unkilled_DX = intbv(1)[1:]
 
         elif opcode == RV32_OP:
-            uses_rs2 = modbv(1)[1:]
+            uses_rs2 = intbv(1)[1:]
             src_b_sel = SRC_B_RS2
             alu_op = alu_op_arith
-            wr_reg_unkilled_DX = modbv(1)[1:]
+            wr_reg_unkilled_DX = intbv(1)[1:]
             if (funct7 == RV32_FUNCT7_MUL_DIV):
-                uses_md_unkilled = modbv(1)[1:]
+                uses_md_unkilled = intbv(1)[1:]
                 wb_src_sel_DX = WB_SRC_MD
 
         elif opcode == RV32_SYSTEM:
@@ -207,18 +207,18 @@ def vscale_ctrl(clk,
             if funct3 == RV32_FUNCT3_PRIV:
                 if ((rs1_addr == 0) & (reg_to_wr_DX == 0)):
                     if funct12 == RV32_FUNCT12_ECALL:
-                        ecall = modbv(1)[1:]
+                        ecall = intbv(1)[1:]
                     elif funct12 == RV32_FUNCT12_EBREAK:
-                        ebreak = modbv(1)[1:]
+                        ebreak = intbv(1)[1:]
                     elif funct12 == RV32_FUNCT12_ERET:
                         if (prv == 0):
-                            illegal_instruction = modbv(1)[1:]
+                            illegal_instruction = intbv(1)[1:]
                         else:
-                            eret_unkilled = modbv(1)[1:]
+                            eret_unkilled = intbv(1)[1:]
                     elif funct12 == RV32_FUNCT12_WFI:
-                        wfi_unkilled_DX = modbv(1)[1:]
+                        wfi_unkilled_DX = intbv(1)[1:]
                     else:
-                        illegal_instruction = modbv(1)[1:]
+                        illegal_instruction = intbv(1)[1:]
             elif funct3 == RV32_FUNCT3_CSRRW:
                 if rs1_addr == 0:
                     csr_cmd_unkilled = CSR_READ
@@ -250,22 +250,22 @@ def vscale_ctrl(clk,
                 else:
                     csr_cmd_unkilled = CSR_CLEAR
             else:
-                illegal_instruction = modbv(1)[1:]
+                illegal_instruction = intbv(1)[1:]
 
         elif opcode == RV32_AUIPC:
-            uses_rs1 = modbv(0)[1:]
+            uses_rs1 = intbv(0)[1:]
             src_a_sel = SRC_A_PC
             imm_type = IMM_U
-            wr_reg_unkilled_DX = modbv(1)[1:]
+            wr_reg_unkilled_DX = intbv(1)[1:]
 
         elif opcode == RV32_LUI:
-            uses_rs1 = modbv(0)[1:]
+            uses_rs1 = intbv(0)[1:]
             src_a_sel = SRC_A_ZERO
             imm_type = IMM_U
-            wr_reg_unkilled_DX = modbv(1)[1:]
+            wr_reg_unkilled_DX = intbv(1)[1:]
 
         else:
-            illegal_instruction = modbv(1)[1:]
+            illegal_instruction = intbv(1)[1:]
 
     if (opcode == RV32_OP) & (funct7[5]):
         add_or_sub = ALU_OP_SUB
