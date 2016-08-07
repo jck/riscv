@@ -6,3 +6,5 @@ _build/
 *.eggs
 *.egg
 .cache/
+.idea
+*.v
