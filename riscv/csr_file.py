@@ -118,7 +118,7 @@ def csr_file(clk,
         system_wen.next = cmd[1] | cmd[0]
         wen_internal.next = host_wen | system_wen
 
-        illegal_region.next = (system_wen & (addr[11:10] == 3)) | (system_en & addr[9:8] > prv)
+        illegal_region.next = (system_wen & (addr[12:10] == 3)) | (system_en & addr[10:8] > prv)
         illegal_access.next = illegal_region | (system_en & ~defined)
 
         wdata_internal.next = wdata
@@ -182,9 +182,9 @@ def csr_file(clk,
         elif wen_internal & addr == CSR_ADDR_MSTATUS:
             priv_stack.next = wdata_internal[5:0]
         elif exception:
-            priv_stack.next = concat(priv_stack[2:0], modbv(int('110', 2))[3:])
+            priv_stack.next = concat(priv_stack[3:0], modbv(int('110', 2))[3:])
         elif eret:
-            priv_stack.next = concat(modbv(int('001', 2))[3:], priv_stack[5:3])
+            priv_stack.next = concat(modbv(int('001', 2))[3:], priv_stack[6:3])
 
         epc.next = mepc
 
@@ -230,7 +230,7 @@ def csr_file(clk,
             mecode.next = 0
             mint.next = 0
         elif wen_internal & addr == CSR_ADDR_MCAUSE:
-            mecode.next = wdata_internal[3:0]
+            mecode.next = wdata_internal[4:0]
             mint.next = wdata_internal[31]
         else:
             if interrupt_taken:
