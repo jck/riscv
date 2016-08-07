@@ -9,6 +9,7 @@ from riscv.csr_file import csr_file
 from riscv.controller import controller
 from riscv.immediate_gen import immediate_gen
 from riscv.md_constants import MD_OUT_SEL_WIDTH, MD_OP_WIDTH
+from riscv.mult_div import mult_div
 from riscv.opcode_constants import XPR_LEN, INST_WIDTH, REG_ADDR_WIDTH, RV_NOP
 from riscv.register_file import register_file
 from riscv.src_a_mux import src_a_mux
@@ -213,7 +214,7 @@ def pipeline(clock, ext_interrupts, reset, imem_wait, imem_addr, imem_rdata, ime
 
     alu_inst = alu(alu_op, alu_src_a, alu_src_b, alu_out)
 
-    md_inst = mul_div(clock, reset, md_req_valid, md_req_ready, md_req_in_1_signed, md_req_in_2_signed, md_req_out_sel,
+    md_inst = mult_div(clock, reset, md_req_valid, md_req_ready, md_req_in_1_signed, md_req_in_2_signed, md_req_out_sel,
                       md_req_op, rs1_data_bypassed, rs2_data_bypassed, md_resp_valid, md_resp_result)
 
     @always_comb

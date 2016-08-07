@@ -29,7 +29,7 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
     funct12 = inst_DX(32, 20)
     funct3 = inst_DX(15, 12)
     rs1_addr = inst_DX(20, 15)
-    rs2_addr = inst_DX(23, 20)
+    rs2_addr = inst_DX(25, 20)
     reg_to_wr_DX = inst_DX(12, 7)
 
     illegal_instruction, ebreak, ecall, eret_unkilled, fence_i = [Signal(False) for _ in range(5)]
@@ -77,14 +77,14 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
     @always_comb
     def assign_2():
         stall_DX.next = stall_WB | (
-            (load_use | raw_on_busy_md | (fence_i & store_in_WB) | (uses_md_unkilled & ~md_req_ready)) & ~(
-                ex_DX | ex_WB | interrupt_taken))
+            (load_use | raw_on_busy_md | (fence_i & store_in_WB) | (uses_md_unkilled & (not md_req_ready))) & (not (
+                ex_DX | ex_WB | interrupt_taken)))
         new_ex_DX.next = ebreak | ecall | illegal_instruction | illegal_csr_access
 
     @always_comb
     def assign_3():
-        stall_IF.next = stall_DX | ((imem_wait & ~redirect) & ~(ex_WB | interrupt_taken))
-        ex_IF.next = imem_badmem_e & ~imem_wait & ~redirect & ~replay_IF
+        stall_IF.next = stall_DX | ((imem_wait & (not redirect)) & (not (ex_WB | interrupt_taken)))
+        ex_IF.next = imem_badmem_e & (not imem_wait) & (not redirect) & (not replay_IF)
         exception.next = ex_WB
         # interrupts kill IF, DX instructions -- WB may commit
         # Exceptions never show up falsely due to hazards -- don't get exceptions on stall
@@ -98,7 +98,7 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
         if reset:
             had_ex_DX.next = 0
             prev_killed_DX.next = 0
-        elif ~stall_DX:
+        elif not stall_DX:
             had_ex_DX.next = ex_IF
             prev_killed_DX.next = kill_IF
 
@@ -348,15 +348,15 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
         else:
             alu_op_arith.next = ALU_OP_ADD
 
-        branch_taken.next = branch_taken_unkilled & ~kill_DX
-        jal.next = jal_unkilled & ~kill_DX
-        jalr.next = jalr_unkilled & ~kill_DX
-        eret.next = eret_unkilled & ~kill_DX
-        dmem_en.next = dmem_en_unkilled & ~kill_DX
-        dmem_wen.next = dmem_wen_unkilled & ~kill_DX
-        wr_reg_DX.next = wr_reg_unkilled_DX & ~kill_DX
-        uses_md.next = uses_md_unkilled & ~kill_DX
-        wfi_DX.next = wfi_unkilled_DX & ~kill_DX
+        branch_taken.next = branch_taken_unkilled & (not kill_DX)
+        jal.next = jal_unkilled & (not kill_DX)
+        jalr.next = jalr_unkilled & (not kill_DX)
+        eret.next = eret_unkilled & (not kill_DX)
+        dmem_en.next = dmem_en_unkilled & (not kill_DX)
+        dmem_wen.next = dmem_wen_unkilled & (not kill_DX)
+        wr_reg_DX.next = wr_reg_unkilled_DX & (not kill_DX)
+        uses_md.next = uses_md_unkilled & (not kill_DX)
+        wfi_DX.next = wfi_unkilled_DX & (not kill_DX)
 
         if kill_DX:
             csr_cmd.next = CSR_IDLE
@@ -371,7 +371,7 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
     def exception_interrupt_control():
         if exception | interrupt_taken:
             PC_src_sel.next = PC_HANDLER
-        elif replay_IF | (stall_IF & ~imem_wait):
+        elif replay_IF | (stall_IF & (not imem_wait)):
             PC_src_sel.next = PC_REPLAY
         elif eret:
             PC_src_sel.next = PC_EPC
@@ -412,15 +412,16 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
     # can't be killed while in WB stage
     @always_comb
     def wfi_handling_1():
-        active_wfi_WB.next = ~prev_killed_WB & wfi_unkilled_WB & ~(interrupt_taken | interrupt_pending)
+        active_wfi_WB.next = (not prev_killed_WB) & wfi_unkilled_WB & (not (interrupt_taken | interrupt_pending))
         kill_WB.next = stall_WB | ex_WB
         dmem_access_exception.next = dmem_badmem_e
 
     @always_comb
     def wfi_handling_2():
-        stall_WB.next = ((dmem_wait & dmem_en_WB) | (uses_md_WB & ~md_resp_valid) | active_wfi_WB) & ~exception
+        stall_WB.next = ((dmem_wait & dmem_en_WB) | (uses_md_WB & (not md_resp_valid)) | active_wfi_WB) & (not exception)
         ex_WB.next = had_ex_WB | dmem_access_exception
         killed_WB.next = prev_killed_WB | kill_WB
+        exception_code_WB.next = ex_code_WB
 
     @always_comb
     def exception_control():
@@ -434,8 +435,7 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
                     ex_code_WB.next = ECODE_STORE_AMO_ADDR_MISALIGNED
 
         exception_WB.next = ex_WB
-        exception_code_WB.next = ex_code_WB
-        wr_reg_WB.next = wr_reg_unkilled_WB & ~kill_WB
+        wr_reg_WB.next = wr_reg_unkilled_WB & (not kill_WB)
         retire_WB.next = not (kill_WB | killed_WB)
 
     @always_comb
@@ -447,10 +447,10 @@ def controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_
 
     @always_comb
     def hazard_logic_2():
-        bypass_rs1.next = ~load_in_WB & raw_rs1
-        bypass_rs2.next = ~load_in_WB & raw_rs2
+        bypass_rs1.next = (not load_in_WB) & raw_rs1
+        bypass_rs2.next = (not load_in_WB) & raw_rs2
         load_use.next = load_in_WB & (raw_rs1 | raw_rs2)
-        raw_on_busy_md.next = uses_md_WB & (raw_rs1 | raw_rs2) & ~md_resp_valid
+        raw_on_busy_md.next = uses_md_WB & (raw_rs1 | raw_rs2) & (not md_resp_valid)
 
     return IF_stage, DX_stage, DX_stage_comb, control, alu_control, assign_1, assign_2, assign_3, assign_4, \
         mult_div_control, wfi_handling_1, wfi_handling_2, exception_control, exception_interrupt_control, \
