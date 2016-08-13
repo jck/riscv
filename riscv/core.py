@@ -1,4 +1,4 @@
-from myhdl import block, intbv
+from myhdl import block, intbv, instances
 
 from riscv.control_constants import *
 from riscv.hasti_constants import *
@@ -9,7 +9,7 @@ from riscv.pipeline import *
 
 
 @block
-def vscale_core(clk,
+def core(clk,
                 ext_interrupts,
                 imem_haddr,
                 imem_hwrite,
