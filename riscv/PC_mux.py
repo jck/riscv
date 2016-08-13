@@ -1,4 +1,4 @@
-from myhdl import always_comb, block, modbv, concat, Signal
+from myhdl import always_comb, block, intbv, concat, Signal
 
 from riscv.control_constants import *
 from riscv.opcode_constants import XPR_LEN
@@ -20,32 +20,32 @@ def PC_mux(PC_src_sel, inst_DX, rs1_data, PC_IF, PC_DX,
     :param Signal PC_PIF: Program counter IF current
     """
 
-    base = Signal(modbv(0)[XPR_LEN:])
-    offset = Signal(modbv(0)[XPR_LEN:])
+    base = Signal(intbv(0)[XPR_LEN:])
+    offset = Signal(intbv(0)[XPR_LEN:])
 
     @always_comb
     def PC_mux_assign():
 
-        imm_b = modbv(0)[XPR_LEN:]
+        imm_b = intbv(0)[XPR_LEN:]
         if inst_DX[31]:
-            imm_b = concat(modbv((1 << 20) - 1)[20:], inst_DX[7], inst_DX[31:25],
+            imm_b = concat(intbv((1 << 20) - 1)[20:], inst_DX[7], inst_DX[31:25],
                            inst_DX[12:8], False)
         else:
-            imm_b = concat(modbv(0)[20:], inst_DX[7], inst_DX[31:25], inst_DX[12:8], False)
+            imm_b = concat(intbv(0)[20:], inst_DX[7], inst_DX[31:25], inst_DX[12:8], False)
 
-        jal_offset = modbv(0)[XPR_LEN:]
+        jal_offset = intbv(0)[XPR_LEN:]
         if inst_DX[31]:
-            jal_offset = concat(modbv((1 << 12) - 1)[12:], inst_DX[20:12], inst_DX[20],
+            jal_offset = concat(intbv((1 << 12) - 1)[12:], inst_DX[20:12], inst_DX[20],
                                 inst_DX[31:25], inst_DX[25:21], False)
         else:
-            jal_offset = concat(modbv(0)[12:], inst_DX[20:12], inst_DX[20],
+            jal_offset = concat(intbv(0)[12:], inst_DX[20:12], inst_DX[20],
                                 inst_DX[31:25], inst_DX[25:21], False)
 
-        jalr_offset = modbv(0)[XPR_LEN:]
+        jalr_offset = intbv(0)[XPR_LEN:]
         if inst_DX[31]:
-            jalr_offset = concat(modbv((1 << 21) - 1)[21:], inst_DX[31:21], False)
+            jalr_offset = concat(intbv((1 << 21) - 1)[21:], inst_DX[31:21], False)
         else:
-            jalr_offset = concat(modbv(0)[21:], inst_DX[31:21], False)
+            jalr_offset = concat(intbv(0)[21:], inst_DX[31:21], False)
 
         if PC_src_sel == PC_JAL_TARGET:
             base.next = PC_DX
