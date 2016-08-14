@@ -66,7 +66,7 @@ def vscale_core(clock,
 
     @always_comb
     def assign():
-        htif_ipi_req_valid.next= intbv(0)[1:]
+        htif_ipi_req_valid.next = intbv(0)[1:]
         htif_ipi_req_data.next = intbv(0)[1:]
         htif_ipi_resp_ready.next = intbv(1)[1:]
         htif_debug_stats_pcr.next = intbv(0)[1:]

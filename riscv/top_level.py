@@ -1,4 +1,4 @@
-from myhdl import block, intbv, instances
+from myhdl import block, intbv, instances, Signal
 
 from riscv.core import *
 from riscv.control_constants import *
@@ -21,49 +21,49 @@ def top_level(clk,
     """
     Top level module for simulation
     """
-    resetn = intbv(0)[1:]
+    resetn = Signal(intbv(0)[1:])
 
-    imem_haddr = intbv(0)[HASTI_ADDR_WIDTH:]
-    imem_hwrite = intbv(0)[1:]
-    imem_hsize = intbv(0)[HASTI_SIZE_WIDTH:]
-    imem_hburst = intbv(0)[HASTI_BURST_WIDTH:]
+    imem_haddr = Signal(intbv(0)[HASTI_ADDR_WIDTH:])
+    imem_hwrite = Signal(intbv(0)[1:])
+    imem_hsize = Signal(intbv(0)[HASTI_SIZE_WIDTH:])
+    imem_hburst = Signal(intbv(0)[HASTI_BURST_WIDTH:])
 
-    imem_hmastlock = intbv(0)[1:]
-    imem_hprot = intbv(0)[HASTI_PROT_WIDTH:]
-    imem_htrans = intbv(0)[HASTI_TRANS_WIDTH:]
-    imem_hwdata = intbv(0)[HASTI_BUS_WIDTH:]
+    imem_hmastlock = Signal(intbv(0)[1:])
+    imem_hprot = Signal(intbv(0)[HASTI_PROT_WIDTH:])
+    imem_htrans = Signal(intbv(0)[HASTI_TRANS_WIDTH:])
+    imem_hwdata = Signal(intbv(0)[HASTI_BUS_WIDTH:])
 
-    imem_hrdata = intbv(0)[HASTI_BUS_WIDTH:]
-    imem_hready = intbv(0)[1:]
-    imem_hresp = intbv(0)[HASTI_RESP_WIDTH:]
+    imem_hrdata = Signal(intbv(0)[HASTI_BUS_WIDTH:])
+    imem_hready = Signal(intbv(0)[1:])
+    imem_hresp = Signal(intbv(0)[HASTI_RESP_WIDTH:])
 
-    dmem_haddr = intbv(0)[HASTI_ADDR_WIDTH:]
-    dmem_hwrite = intbv(0)[1:]
-    dmem_hsize = intbv(0)[HASTI_SIZE_WIDTH:]
-    dmem_hburst = intbv(0)[HASTI_BURST_WIDTH:]
-    dmem_hmastlock = intbv(0)[1:]
-    dmem_hprot = intbv(0)[HASTI_PROT_WIDTH:]
-    dmem_htrans = intbv(0)[HASTI_TRANS_WIDTH:]
-    dmem_hwdata = intbv(0)[HASTI_BUS_WIDTH:]
-    dmem_hrdata = intbv(0)[HASTI_BUS_WIDTH:]
-    dmem_hready = intbv(0)[1:]
-    dmem_hresp = intbv(0)[HASTI_RESP_WIDTH:]
+    dmem_haddr = Signal(intbv(0)[HASTI_ADDR_WIDTH:])
+    dmem_hwrite = Signal(intbv(0)[1:])
+    dmem_hsize = Signal(intbv(0)[HASTI_SIZE_WIDTH:])
+    dmem_hburst = Signal(intbv(0)[HASTI_BURST_WIDTH:])
+    dmem_hmastlock = Signal(intbv(0)[1:])
+    dmem_hprot = Signal(intbv(0)[HASTI_PROT_WIDTH:])
+    dmem_htrans = Signal(intbv(0)[HASTI_TRANS_WIDTH:])
+    dmem_hwdata = Signal(intbv(0)[HASTI_BUS_WIDTH:])
+    dmem_hrdata = Signal(intbv(0)[HASTI_BUS_WIDTH:])
+    dmem_hready = Signal(intbv(0)[1:])
+    dmem_hresp = Signal(intbv(0)[HASTI_RESP_WIDTH:])
 
-    htif_reset = intbv(0)[1:]
+    htif_reset = Signal(intbv(0)[1:])
 
-    htif_ipi_req_ready = intbv(0)[1:]
-    htif_ipi_req_valid = intbv(0)[1:]
-    htif_ipi_req_data = intbv(0)[1:]
-    htif_ipi_resp_ready = intbv(0)[1:]
-    htif_ipi_resp_valid = intbv(0)[1:]
-    htif_ipi_resp_data = intbv(0)[1:]
-    htif_debug_stats_pcr = intbv(0)[1:]
+    htif_ipi_req_ready = Signal(intbv(0)[1:])
+    htif_ipi_req_valid = Signal(intbv(0)[1:])
+    htif_ipi_req_data = Signal(intbv(0)[1:])
+    htif_ipi_resp_ready = Signal(intbv(0)[1:])
+    htif_ipi_resp_valid = Signal(intbv(0)[1:])
+    htif_ipi_resp_data = Signal(intbv(0)[1:])
+    htif_debug_stats_pcr = Signal(intbv(0)[1:])
 
     resetn = not reset
     htif_reset = reset
 
     vscale_core = core(clk=clk,
-                       ext_interrupts=intbv(0)[1:],
+                       ext_interrupts=Signal(intbv(0)[1:]),
                        imem_haddr=imem_haddr,
                        imem_hwrite=imem_hwrite,
                        imem_hsize=imem_hsize,
@@ -87,7 +87,7 @@ def top_level(clk,
                        dmem_hready=dmem_hready,
                        dmem_hresp=dmem_hresp,
                        htif_reset=htif_reset,
-                       htif_id=intbv(0)[1:],
+                       htif_id=Signal(intbv(0)[1:]),
                        htif_pcr_req_valid=htif_pcr_req_valid,
                        htif_pcr_req_ready=htif_pcr_req_ready,
                        htif_pcr_req_rw=htif_pcr_req_rw,
