@@ -1,9 +1,11 @@
 from myhdl import block, intbv, instances
 
+from riscv.core import *
 from riscv.control_constants import *
 from riscv.csr_file import *
 from riscv.hasti_constants import *
-from riscv.core import *
+from riscv.dp_hasti_sram import *
+
 
 @block
 def top_level(clk,
@@ -16,7 +18,9 @@ def top_level(clk,
               htif_pcr_resp_valid,
               htif_pcr_resp_ready,
               htif_pcr_resp_data):
-
+    """
+    Top level module for simulation
+    """
     resetn = intbv(0)[1:]
 
     imem_haddr = intbv(0)[HASTI_ADDR_WIDTH:]
