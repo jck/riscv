@@ -1,4 +1,4 @@
-from myhdl import block, intbv, instances, concat
+from myhdl import block, intbv, instances, concat, Signal, always
 from riscv.hasti_constants import *
 
 
@@ -34,7 +34,7 @@ def dp_hasti_sram(hclk,
     s_w1 = 0
     s_w2 = 1
 
-    mem = [intbv(0)[HASTI_BUS_WIDTH:] for i in range(nwords - 1)]
+    mem = [intbv(0)[HASTI_BUS_WIDTH:] for _ in range(nwords - 1)]
 
     p0_waddr = Signal(intbv(0)[HASTI_ADDR_WIDTH:])
     p0_wdata = Signal(intbv(0)[HASTI_BUS_WIDTH:])

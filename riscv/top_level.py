@@ -1,14 +1,10 @@
-from myhdl import block, intbv, instances, Signal
-
 from riscv.core import *
-from riscv.control_constants import *
 from riscv.csr_file import *
-from riscv.hasti_constants import *
 from riscv.dp_hasti_sram import *
 
 
 @block
-def top_level(clk,
+def top_level(clock,
               reset,
               htif_pcr_req_valid,
               htif_pcr_req_ready,
@@ -62,7 +58,7 @@ def top_level(clk,
     resetn = not reset
     htif_reset = reset
 
-    vscale_core = core(clk=clk,
+    vscale_core = core(clock=clock,
                        ext_interrupts=Signal(intbv(0)[1:]),
                        imem_haddr=imem_haddr,
                        imem_hwrite=imem_hwrite,
@@ -104,7 +100,7 @@ def top_level(clk,
                        htif_ipi_resp_data=htif_ipi_resp_data,
                        htif_debug_stats_pcr=htif_debug_stats_pcr)
 
-    hasti_mem = dp_hasti_sram(hclk=clk,
+    hasti_mem = dp_hasti_sram(hclk=clock,
                               hresetn=resetn,
                               p1_haddr=imem_haddr,
                               p1_hwrite=imem_hwrite,
