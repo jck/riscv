@@ -1,4 +1,4 @@
-from myhdl import block, Signal, intbv, always, instance
+from myhdl import block, Signal, intbv, always, instance, instances
 
 from riscv.control_constants import HTIF_PCR_WIDTH
 from riscv.csr_constants import CSR_ADDR_TO_HOST
@@ -66,3 +66,5 @@ def verilator_top(clock, reset):
         if reason:
             # $fdisplay(stderr, "*** FAILED *** (%s) after %d simulation cycles", reason, trace_count);
             exit()
+
+    return instances()
