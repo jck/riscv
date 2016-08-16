@@ -1,4 +1,4 @@
-from myhdl import block, always_comb, concat, modbv
+from myhdl import block, always_comb, concat, intbv
 from riscv.opcode_constants import *
 from riscv.alu_constants import *
 
@@ -17,8 +17,8 @@ def alu(op, in1, in2, out):
     @always_comb
     def alu_output():
         shamt = in2[SHAMT_WIDTH:]
-        padding = modbv(0)[XPR_LEN-1:]
-        out.next = modbv(0)[XPR_LEN:]
+        padding = intbv(0)[XPR_LEN-1:]
+        out.next = intbv(0)[XPR_LEN:]
 
         if op == ALU_OP_ADD:
             out.next = in1 + in2
@@ -35,15 +35,15 @@ def alu(op, in1, in2, out):
 
         elif op == ALU_OP_SEQ:
             if in1 == in2:
-                out.next = concat(padding, modbv(1)[1:])
+                out.next = concat(padding, intbv(1)[1:])
             else:
-                out.next = concat(padding, modbv(0)[1:])
+                out.next = concat(padding, intbv(0)[1:])
 
         elif op == ALU_OP_SNE:
             if in1 != in2:
-                out.next = concat(padding, modbv(1)[1:])
+                out.next = concat(padding, intbv(1)[1:])
             else:
-                out.next = concat(padding, modbv(0)[1:])
+                out.next = concat(padding, intbv(0)[1:])
 
         elif op == ALU_OP_SUB:
             out.next = in1 - in2
@@ -53,27 +53,27 @@ def alu(op, in1, in2, out):
 
         elif op == ALU_OP_SLT:
             if in1.signed() < in2.signed():
-                out.next = concat(padding, modbv(1)[1:])
+                out.next = concat(padding, intbv(1)[1:])
             else:
-                out.next = concat(padding, modbv(0)[1:])
+                out.next = concat(padding, intbv(0)[1:])
 
         elif op == ALU_OP_SGE:
             if in1.signed() >= in2.signed():
-                out.next = concat(padding, modbv(1)[1:])
+                out.next = concat(padding, intbv(1)[1:])
             else:
-                out.next = concat(padding, modbv(0)[1:])
+                out.next = concat(padding, intbv(0)[1:])
 
         elif op == ALU_OP_SLTU:
             if in1 < in2:
-                out.next = concat(padding, modbv(1)[1:])
+                out.next = concat(padding, intbv(1)[1:])
             else:
-                out.next = concat(padding, modbv(0)[1:])
+                out.next = concat(padding, intbv(0)[1:])
         elif op == ALU_OP_SGEU:
             if in1 >= in2:
-                out.next = concat(padding, modbv(1)[1:])
+                out.next = concat(padding, intbv(1)[1:])
             else:
-                out.next = concat(padding, modbv(0)[1:])
+                out.next = concat(padding, intbv(0)[1:])
         else:
-            out.next = modbv(0)[XPR_LEN:]
+            out.next = intbv(0)[XPR_LEN:]
 
     return alu_output
