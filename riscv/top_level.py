@@ -1,5 +1,4 @@
 from riscv.core import *
-from riscv.csr_file import *
 from riscv.dp_hasti_sram import *
 
 
