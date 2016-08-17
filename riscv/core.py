@@ -1,4 +1,4 @@
-from myhdl import block, intbv, instances
+from myhdl import instance, delay
 
 from riscv.csr_file import *
 from riscv.hasti_bridge import *
@@ -6,47 +6,47 @@ from riscv.pipeline import pipeline
 
 
 @block
-def vscale_core(clock,
-                ext_interrupts,
-                imem_haddr,
-                imem_hwrite,
-                imem_hsize,
-                imem_hburst,
-                imem_hmastlock,
-                imem_hprot,
-                imem_htrans,
-                imem_hwdata,
-                imem_hrdata,
-                imem_hready,
-                imem_hresp,
-                dmem_haddr,
-                dmem_hwrite,
-                dmem_hsize,
-                dmem_hburst,
-                dmem_hmastlock,
-                dmem_hprot,
-                dmem_htrans,
-                dmem_hwdata,
-                dmem_hrdata,
-                dmem_hready,
-                dmem_hresp,
-                htif_reset,
-                htif_id,
-                htif_pcr_req_valid,
-                htif_pcr_req_ready,
-                htif_pcr_req_rw,
-                htif_pcr_req_addr,
-                htif_pcr_req_data,
-                htif_pcr_resp_valid,
-                htif_pcr_resp_ready,
-                htif_pcr_resp_data,
-                htif_ipi_req_ready,
-                htif_ipi_req_valid,
-                htif_ipi_req_data,
-                htif_ipi_resp_ready,
-                htif_ipi_resp_data,
-                htif_ipi_resp_valid,
-                htif_debug_stats_pcr):
+def core(clock,
+         ext_interrupts,
+         imem_haddr,
+         imem_hwrite,
+         imem_hsize,
+         imem_hburst,
+         imem_hmastlock,
+         imem_hprot,
+         imem_htrans,
+         imem_hwdata,
+         imem_hrdata,
+         imem_hready,
+         imem_hresp,
+         dmem_haddr,
+         dmem_hwrite,
+         dmem_hsize,
+         dmem_hburst,
+         dmem_hmastlock,
+         dmem_hprot,
+         dmem_htrans,
+         dmem_hwdata,
+         dmem_hrdata,
+         dmem_hready,
+         dmem_hresp,
+         htif_reset,
+         htif_id,
+         htif_pcr_req_valid,
+         htif_pcr_req_ready,
+         htif_pcr_req_rw,
+         htif_pcr_req_addr,
+         htif_pcr_req_data,
+         htif_pcr_resp_valid,
+         htif_pcr_resp_ready,
+         htif_pcr_resp_data,
+         htif_ipi_req_ready,
+         htif_ipi_req_valid,
+         htif_ipi_req_data,
+         htif_ipi_resp_ready,
+         htif_ipi_resp_data,
+         htif_ipi_resp_valid,
+         htif_debug_stats_pcr):
     """
     Vscale : Core module assembly
     """
@@ -64,12 +64,13 @@ def vscale_core(clock,
     dmem_rdata = Signal(intbv(0)[HASTI_BUS_WIDTH:0])
     dmem_badmem_e = Signal(intbv(0)[1:])
 
-    @always_comb
+    @instance
     def assign():
         htif_ipi_req_valid.next = intbv(0)[1:]
         htif_ipi_req_data.next = intbv(0)[1:]
         htif_ipi_resp_ready.next = intbv(1)[1:]
         htif_debug_stats_pcr.next = intbv(0)[1:]
+        yield delay(1)
 
     imem_bridge = hasti_bridge(haddr=imem_haddr,
                                hwrite=imem_hwrite,

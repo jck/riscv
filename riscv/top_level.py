@@ -1,26 +1,21 @@
-from myhdl import block, intbv, instances, Signal
+from myhdl import delay
 
 from riscv.core import *
-from riscv.control_constants import *
-from riscv.csr_file import *
-from riscv.hasti_constants import *
 from riscv.dp_hasti_sram import *
 
 
 @block
-def top_level(clk,
-              reset,
-              htif_pcr_req_valid,
-              htif_pcr_req_ready,
-              htif_pcr_req_rw,
-              htif_pcr_req_data,
-              htif_pcr_req_addr,
-              htif_pcr_resp_valid,
-              htif_pcr_resp_ready,
-              htif_pcr_resp_data):
+def top_level():
     """
     Top level module for simulation
     """
+
+    clock, reset, htif_pcr_req_valid, htif_pcr_req_ready, htif_pcr_req_rw, htif_pcr_resp_valid, htif_pcr_resp_ready = \
+        [Signal(intbv(0)[1:]) for _ in range(7)]
+    htif_pcr_req_addr = Signal(intbv(0)[CSR_ADDR_WIDTH:])
+    htif_pcr_req_data = Signal(intbv(0)[HTIF_PCR_WIDTH:])
+    htif_pcr_resp_data = Signal(intbv(0)[HTIF_PCR_WIDTH:])
+
     resetn = Signal(intbv(0)[1:])
 
     imem_haddr = Signal(intbv(0)[HASTI_ADDR_WIDTH:])
@@ -62,7 +57,11 @@ def top_level(clk,
     resetn = not reset
     htif_reset = reset
 
-    vscale_core = core(clk=clk,
+    @always(delay(10))
+    def clock_drive():
+        clock.next = not clock
+
+    vscale_core = core(clock=clock,
                        ext_interrupts=Signal(intbv(0)[1:]),
                        imem_haddr=imem_haddr,
                        imem_hwrite=imem_hwrite,
@@ -104,7 +103,7 @@ def top_level(clk,
                        htif_ipi_resp_data=htif_ipi_resp_data,
                        htif_debug_stats_pcr=htif_debug_stats_pcr)
 
-    hasti_mem = dp_hasti_sram(hclk=clk,
+    hasti_mem = dp_hasti_sram(hclk=clock,
                               hresetn=resetn,
                               p1_haddr=imem_haddr,
                               p1_hwrite=imem_hwrite,
@@ -113,7 +112,7 @@ def top_level(clk,
                               p1_hmastlock=imem_hmastlock,
                               p1_hprot=imem_hprot,
                               p1_htrans=imem_htrans,
-                              p1_hwdata=imem_hwdata,
+                              # p1_hwdata=imem_hwdata,
                               p1_hrdata=imem_hrdata,
                               p1_hready=imem_hready,
                               p1_hresp=imem_hresp,
@@ -130,3 +129,6 @@ def top_level(clk,
                               p0_hresp=dmem_hresp)
 
     return instances()
+
+inst = top_level()
+inst.run_sim(10000)

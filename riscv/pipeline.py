@@ -21,7 +21,6 @@ def pipeline(clock, ext_interrupts, reset, imem_wait, imem_addr, imem_rdata, ime
              dmem_wen, dmem_size, dmem_addr, dmem_wdata_delayed, dmem_rdata, dmem_badmem_e, htif_reset,
              htif_pcr_req_valid, htif_pcr_req_ready, htif_pcr_req_rw, htif_pcr_req_addr, htif_pcr_req_data,
              htif_pcr_resp_valid, htif_pcr_resp_ready, htif_pcr_resp_data):
-
     """
     The Pipeline Module
 
@@ -155,13 +154,13 @@ def pipeline(clock, ext_interrupts, reset, imem_wait, imem_addr, imem_rdata, ime
     eret = Signal(False)
     epc = Signal(intbv(0)[XPR_LEN:])
 
-    controller_inst = controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_badmem_e,
-                                 cmp_true, PC_src_sel, imm_type, src_a_sel, src_b_sel, bypass_rs1, bypass_rs2,
-                                 alu_op, dmem_en, dmem_wen, dmem_size, dmem_type,md_req_valid, md_req_ready,
-                                 md_req_op, md_req_in_1_signed, md_req_in_2_signed, md_req_out_sel, md_resp_valid,
-                                 wr_reg_WB, reg_to_wr_WB, wb_src_sel_WB, stall_IF, kill_IF, stall_DX, kill_DX,
-                                 stall_WB, kill_WB, exception_WB, exception_code_WB, retire_WB, csr_cmd,
-                                 csr_imm_sel, illegal_csr_access, interrupt_pending, interrupt_taken, prv, eret)
+    controller_inst = controller(clock, reset, inst_DX, imem_wait, imem_badmem_e, dmem_wait, dmem_badmem_e, cmp_true,
+                                 prv, PC_src_sel, imm_type, bypass_rs1, bypass_rs2, src_a_sel, src_b_sel, alu_op,
+                                 dmem_en, dmem_wen, dmem_size, dmem_type, md_req_valid, md_req_ready,
+                                 md_req_in_1_signed, md_req_in_2_signed, md_req_op, md_req_out_sel, md_resp_valid,
+                                 eret, csr_cmd, csr_imm_sel, illegal_csr_access, interrupt_pending, interrupt_taken,
+                                 wr_reg_WB, reg_to_wr_WB, wb_src_sel_WB, stall_IF, kill_IF, stall_DX, kill_DX, stall_WB,
+                                 kill_WB, exception_WB, exception_code_WB, retire_WB)
 
     pc_mux_inst = PC_mux(PC_src_sel, inst_DX, rs1_data_bypassed, PC_IF, PC_DX, handler_PC, epc, PC_PIF)
 
@@ -215,7 +214,7 @@ def pipeline(clock, ext_interrupts, reset, imem_wait, imem_addr, imem_rdata, ime
     alu_inst = alu(alu_op, alu_src_a, alu_src_b, alu_out)
 
     md_inst = mult_div(clock, reset, md_req_valid, md_req_ready, md_req_in_1_signed, md_req_in_2_signed, md_req_out_sel,
-                      md_req_op, rs1_data_bypassed, rs2_data_bypassed, md_resp_valid, md_resp_result)
+                       md_req_op, rs1_data_bypassed, rs2_data_bypassed, md_resp_valid, md_resp_result)
 
     @always_comb
     def assign_4():
@@ -265,7 +264,7 @@ def pipeline(clock, ext_interrupts, reset, imem_wait, imem_addr, imem_rdata, ime
     csr_file_inst = csr_file(clock, ext_interrupts, reset, csr_addr, csr_cmd, csr_wdata, prv, illegal_csr_access,
                              csr_rdata, retire_WB, exception_WB, exception_code_WB, alu_out_WB, PC_WB, epc, eret,
                              handler_PC, interrupt_pending, interrupt_taken, htif_reset, htif_pcr_req_valid,
-                             htif_pcr_req_ready, htif_pcr_req_rw, htif_pcr_req_rw, htif_pcr_req_addr, htif_pcr_req_data,
+                             htif_pcr_req_ready, htif_pcr_req_rw, htif_pcr_req_addr, htif_pcr_req_data,
                              htif_pcr_resp_valid, htif_pcr_resp_ready, htif_pcr_resp_data)
 
     return instances()
