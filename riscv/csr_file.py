@@ -115,14 +115,21 @@ def csr_file(clock,
         ie.next = priv_stack[0]
 
         host_wen.next = (htif_state == HTIF_STATE_IDLE) & htif_pcr_req_valid & htif_pcr_req_rw
-        system_en.next = cmd[2]
         system_wen.next = cmd[1] | cmd[0]
-        wen_internal.next = host_wen | system_wen
 
-        illegal_region.next = (system_wen & (addr[12:10] == 3)) | (system_en & addr[10:8] > prv)
         illegal_access.next = illegal_region | (system_en & ~defined)
 
         wdata_internal.next = wdata
+
+    @always_comb
+    def assign_1():
+        system_en.next = cmd[2]
+
+    @always_comb
+    def assign_2():
+
+        illegal_region.next = (system_wen & (addr[12:10] == 3)) | (system_en & addr[10:8] > prv)
+        wen_internal.next = host_wen | system_wen
         if host_wen:
             wdata_internal.next = htif_pcr_req_data
         elif system_wen:
@@ -418,4 +425,4 @@ def csr_file(clock,
             if htif_fire & htif_pcr_req_addr == CSR_ADDR_TO_HOST & ~system_wen:
                 to_host.next = 0
 
-    return instances
+    return instances()

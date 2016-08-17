@@ -1,3 +1,5 @@
+from myhdl import instance, delay
+
 from riscv.csr_file import *
 from riscv.hasti_bridge import *
 from riscv.pipeline import pipeline
@@ -62,12 +64,13 @@ def core(clock,
     dmem_rdata = Signal(intbv(0)[HASTI_BUS_WIDTH:0])
     dmem_badmem_e = Signal(intbv(0)[1:])
 
-    @always_comb
+    @instance
     def assign():
         htif_ipi_req_valid.next = intbv(0)[1:]
         htif_ipi_req_data.next = intbv(0)[1:]
         htif_ipi_resp_ready.next = intbv(1)[1:]
         htif_debug_stats_pcr.next = intbv(0)[1:]
+        yield delay(1)
 
     imem_bridge = hasti_bridge(haddr=imem_haddr,
                                hwrite=imem_hwrite,

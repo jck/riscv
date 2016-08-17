@@ -57,7 +57,6 @@ def dp_hasti_sram(hclk,
         else:
             p0_wmask_lut.next = intbv(0xf)[HASTI_BUS_NBYTES:]
 
-        p0_wmask_shift.next = p0_wmask_lut << p0_waddr[2:0]
 
     @always_comb
     def assign_2():
@@ -65,7 +64,9 @@ def dp_hasti_sram(hclk,
                                *[p0_wmask_shift[2] for _ in range(8)],
                                *[p0_wmask_shift[1] for _ in range(8)],
                                *[p0_wmask_shift[0] for _ in range(8)])
-
+    @always_comb
+    def assign_3():
+        p0_wmask_shift.next = p0_wmask_lut << p0_waddr[2:0]
         p0_word_waddr.next = p0_waddr >> 2
         p0_raddr.next = p0_haddr >> 2
         p0_ren.next = p0_htrans == HASTI_TRANS_NONSEQ and not p0_hwrite
@@ -103,10 +104,8 @@ def dp_hasti_sram(hclk,
 
     @always_comb
     def assign_3():
-        p0_rdata.next = mem[p0_reg_raddr]
         p0_hrdata.next = (p0_wdata & p0_rmask) | (p0_rdata & (not p0_rmask))
         p0_hready.next = 1
-        p0_rmask.next = concat(*[p0_bypass for _ in range(32)]) & p0_wmask
         p0_hresp.next = HASTI_RESP_OKAY
 
     p1_raddr = Signal(intbv(0)[HASTI_ADDR_WIDTH:])
@@ -114,6 +113,8 @@ def dp_hasti_sram(hclk,
 
     @always_comb
     def assign_4():
+        p0_rmask.next = concat(*[p0_bypass for _ in range(32)]) & p0_wmask
+        p0_rdata.next = mem[p0_reg_raddr]
         p1_raddr.next = p1_haddr >> 2
         p1_ren.next = p1_htrans == HASTI_TRANS_NONSEQ and not p1_hwrite
 
@@ -139,8 +140,11 @@ def dp_hasti_sram(hclk,
     def assign_5():
         p1_rdata.next = mem[p1_reg_raddr]
         p1_rmask.next = concat(*[p1_bypass for _ in range(32)]) and p0_wmask
-        p1_hrdata.next = (p0_wdata & p1_rmask) | (p1_rdata & (not p1_rmask))
         p1_hready.next = Signal(intbv(1)[1:])
         p1_hresp.next = Signal(intbv(HASTI_RESP_OKAY)[1:])
+
+    @always_comb
+    def assign_6():
+        p1_hrdata.next = (p0_wdata & p1_rmask) | (p1_rdata & (not p1_rmask))
 
     return instances()
