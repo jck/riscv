@@ -9,9 +9,42 @@
 
 ### Available tools : 
 
-* Pure Python RISC-V 2.0 decoder 
-* myHDL based decoder module
+* Pure Python RISC-V 2.0 decoder.
+* myHDL based decoder module.
+* myHDL version of RISC-V core [Zscale](https://github.com/ucb-bar/zscale/)
+* myHDL based Zscale core modules with individual module tests.
 
-### In Progress : 
-* RISC-V core supporting RV32I 
-=======
+### In Progress :
+
+* Tests for core assembly.
+
+
+### Installation and Usage
+
+*Cloning the repo*
+
+```
+git clone https://github.com/jck/riscv.git
+```
+
+*Installing dependencies*
+
+```
+cd riscv
+python -m pip install -r requirements.txt
+```
+
+*Usage*
+
+The core modules can be imported by:
+
+```
+from riscv import alu
+```
+
+*Running tests*
+
+```
+python -m pytest
+```
+

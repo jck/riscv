@@ -17,7 +17,7 @@ def reduced_or(input):
 
 
 @block
-def csr_file(clk,
+def csr_file(clock,
              ext_interrupts,
              reset,
              addr,
@@ -115,14 +115,21 @@ def csr_file(clk,
         ie.next = priv_stack[0]
 
         host_wen.next = (htif_state == HTIF_STATE_IDLE) & htif_pcr_req_valid & htif_pcr_req_rw
-        system_en.next = cmd[2]
         system_wen.next = cmd[1] | cmd[0]
-        wen_internal.next = host_wen | system_wen
 
-        illegal_region.next = (system_wen & (addr[11:10] == 3)) | (system_en & addr[9:8] > prv)
         illegal_access.next = illegal_region | (system_en & ~defined)
 
         wdata_internal.next = wdata
+
+    @always_comb
+    def assign_1():
+        system_en.next = cmd[2]
+
+    @always_comb
+    def assign_2():
+
+        illegal_region.next = (system_wen & (addr[12:10] == 3)) | (system_en & addr[10:8] > prv)
+        wen_internal.next = host_wen | system_wen
         if host_wen:
             wdata_internal.next = htif_pcr_req_data
         elif system_wen:
@@ -147,7 +154,7 @@ def csr_file(clk,
         else:
             interrupt_taken.next = intbv(1)[1:]
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def htif_setup():
         if htif_reset:
             htif_state.next = HTIF_STATE_IDLE
@@ -176,16 +183,16 @@ def csr_file(clk,
         mimpid.next = intbv(int('8000', 16))[32:]
         mhartid.next = 0
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def priv_stack_setup():
         if reset:
             priv_stack.next = intbv(int('000110', 2))[6:]
         elif wen_internal & addr == CSR_ADDR_MSTATUS:
             priv_stack.next = wdata_internal[5:0]
         elif exception:
-            priv_stack.next = concat(priv_stack[2:0], intbv(int('110', 2))[3:])
+            priv_stack.next = concat(priv_stack[3:0], intbv(int('110', 2))[3:])
         elif eret:
-            priv_stack.next = concat(intbv(int('001', 2))[3:], priv_stack[5:3])
+            priv_stack.next = concat(intbv(int('001', 2))[3:], priv_stack[6:3])
 
         epc.next = mepc
 
@@ -193,7 +200,7 @@ def csr_file(clk,
         mtdeleg.next = 0
         mtimer_expired.next = (mtimecmp == mtime_full[XPR_LEN:])
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def mtimer_setup():
         if reset:
             mtip.next = 0
@@ -209,14 +216,14 @@ def csr_file(clk,
 
         mip.next = concat(ext_interrupts, mtip, intbv(0)[3:], msip, intbv(0)[3:])
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def wen_setup():
         if reset:
             mie.next = 0
         elif wen_internal & addr == CSR_ADDR_MIE:
             mie.next = wdata_internal
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def exception_setup():
         if interrupt_taken:
             mepc.next = (exception_PC & concat(intbv(1)[30:], intbv(0)[2:])) + intbv(int('4', 16))[XPR_LEN:]
@@ -225,13 +232,13 @@ def csr_file(clk,
         if wen_internal & addr == CSR_ADDR_MEPC:
             mepc.next = wdata_internal & concat(intbv(1)[30:], intbv(0)[2:])
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def interrupt_exception_setup():
         if reset:
             mecode.next = 0
             mint.next = 0
         elif wen_internal & addr == CSR_ADDR_MCAUSE:
-            mecode.next = wdata_internal[3:0]
+            mecode.next = wdata_internal[4:0]
             mint.next = wdata_internal[31]
         else:
             if interrupt_taken:
@@ -246,7 +253,7 @@ def csr_file(clk,
         mcause.next = concat(mint, intbv(0)[27:], mecode)
         code_imem.next = (exception_code == ECODE_INST_ADDR_MISALIGNED) | (exception_code == ECODE_INST_ADDR_MISALIGNED)
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def exception_load():
         if exception:
             if code_imem:
@@ -358,7 +365,7 @@ def csr_file(clk,
             rdata.next = 0
             defined.next = intbv(0)[1:]
 
-    @always(clk.posedge)
+    @always(clock.posedge)
     def csr_seq_logic():
         if reset:
             cycle_full.next = 0
@@ -418,4 +425,4 @@ def csr_file(clk,
             if htif_fire & htif_pcr_req_addr == CSR_ADDR_TO_HOST & ~system_wen:
                 to_host.next = 0
 
-    return instances
+    return instances()
