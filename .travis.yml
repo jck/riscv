@@ -8,9 +8,12 @@ install:
   - pip install coverage
   - pip install coveralls
   - pip install -r requirements.txt
+  - pip install -U pytest-cov
+  - pip install codecov
 
 script:
-  - coverage run --source=riscv -m py.test -s
+  - pytest --cov
 
 after_success:
    - coveralls
+   - codecov
